@@ -1,20 +1,21 @@
-10 PRINT CHR$(147)
-50 XI = 15
-100 FOR PY=0 TO 24
-110 FOR PX=0 TO 39
-120 XZ = PX*3.5/40-2.5
-130 YZ = PY*2/25-1
-140 X = 0
-150 Y = 0
-160 FOR I=0 TO 15
-170 IF X*X+Y*Y > 4 THEN GOTO 215
-180 XT = X*X - Y*Y + XZ
-190 Y = 2*X*Y + YZ
-200 X = XT
-210 NEXT I
-215 I = I-1
-220 POKE 1024+PY*40+PX,160
-230 POKE 55296+PY*40+PX,I
-240 NEXT PX
-250 PRINT ""
-260 NEXT PY
+10 print chr$(147)
+100 for py=0 to 21
+110 for px=0 to 31
+120 xz = px*3.5/32-2.5
+130 yz = py*2/22-1
+140 x = 0
+150 y = 0
+160 for i=0 to 14
+170 if x*x+y*y > 4 then goto 215
+180 xt = x*x - y*y + xz
+190 y = 2*x*y + yz
+200 x = xt
+210 next i
+215 i = i-1
+220 poke 1024+py*40+px,160
+230 poke 55296+py*40+px,i
+240 next px
+260 next py
+270 for i=0 to 9
+280 print chr$(17)
+290 next i
