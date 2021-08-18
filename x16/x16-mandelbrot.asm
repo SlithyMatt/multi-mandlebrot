@@ -25,6 +25,7 @@ start:
    ldx #0
    ldy #0
 @loop:
+   lda mand_max_it
    jsr mand_get
    pha                  ; push I to stack
    stz VERA_ctrl

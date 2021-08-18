@@ -84,10 +84,10 @@ mand_get:   ; Input: X,Y - bitmap coordinates
    sbc #4
    beq @check_fraction
    bmi @do_it
-   jmp @done
+   jmp @dec_i
 @check_fraction:
    lda FP_C
-   bne @done
+   bne @dec_i
 @do_it:
    jsr fp_subtract   ; C = X^2 - Y^2
    FP_TCA            ; A = C (X^2 - Y^2)
@@ -115,7 +115,6 @@ mand_get:   ; Input: X,Y - bitmap coordinates
    jmp @loop
 @dec_i:
    dex
-@done:
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    txa
    ply
