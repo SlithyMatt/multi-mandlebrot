@@ -1,6 +1,8 @@
 .ifndef FIXEDPT_INC
 FIXEDPT_INC = 1
 
+.macpack        cpu
+
 .ifdef __CX16__
 FP_A = $28
 FP_B = $2A
@@ -76,7 +78,7 @@ fp_floor: ; FP_C = floor(FP_C)
    lda FP_C
    cmp #0
    beq @zerofrac
-   dec FP_C+1   
+   dec FP_C+1
 @zerofrac:
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    stz FP_C
@@ -86,19 +88,19 @@ fp_floor: ; FP_C = floor(FP_C)
 .endif
    rts
 
-fp_tca: ; FP_A = FP_C
+.macro FP_TCA ; FP_A = FP_C
    lda FP_C
    sta FP_A
    lda FP_C+1
    sta FP_A+1
-   rts
+.endmacro
 
-fp_tcb: ; FP_B = FP_C
+.macro FP_TCB ; FP_B = FP_C
    lda FP_C
    sta FP_B
    lda FP_C+1
    sta FP_B+1
-   rts
+.endmacro
 
 fp_subtract: ; FP_C = FP_A - FP_B
    lda FP_A
@@ -131,7 +133,11 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
    sta FP_C
    lda FP_A+1
    sta FP_C+1
+.if (.cpu .bitand ::CPU_ISET_65SC02)
    bra @check_sign_b
+.else
+   jmp @check_sign_b
+.endif
 @abs_a:
    lda #0
    sec
@@ -164,8 +170,16 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
    ror FP_B
    lsr FP_B+1
    ror FP_B
+   lsr FP_B+1
+   ror FP_B
+.if (.cpu .bitand ::CPU_ISET_65SC02)
    stz FP_R
    stz FP_R+1
+.else
+   lda #0
+   sta FP_R
+   sta FP_R+1
+.endif
    ldx #16     ;There are 16 bits in C
 @loop1:
    asl FP_C    ;Shift hi bit of C into REM
@@ -193,7 +207,7 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
    bmi @check_cancel
    bit FP_A+1
    bmi @negative
-   bra @return
+   rts
 @check_cancel:
    bit FP_A+1
    bmi @return
@@ -260,7 +274,7 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    dex
    bne @loop1
    sta FP_R+1
-   ldx #7
+   ldx #8
 @loop3:
    lsr FP_R+1
    ror FP_R
@@ -281,7 +295,7 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    bmi @check_cancel
    bit FP_A+1
    bmi @negative
-   bra @return
+   rts
 @check_cancel:
    bit FP_A+1
    bmi @return
