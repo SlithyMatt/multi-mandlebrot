@@ -61,13 +61,12 @@ fp_floor_byte: ; A = floor(FP_C)
    lda FP_C+1
    rts
 @decc:
+lda FP_C
 .if (.cpu .bitand ::CPU_ISET_65SC02)
-   lda FP_C
    dec
 .else
-   ldx FP_C
-   dex
-   txa
+   sec
+   sbc #1
 .endif
 @return:
    rts
@@ -123,6 +122,15 @@ fp_add: ; FP_C = FP_A + FP_B
    rts
 
 fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
+.if (.cpu .bitand ::CPU_ISET_65SC02)
+   phx
+   phy
+.else
+   txa
+   pha
+   tya
+   pha
+.endif
    lda FP_B
    pha
    lda FP_B+1
@@ -207,7 +215,7 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
    bmi @check_cancel
    bit FP_A+1
    bmi @negative
-   rts
+   jmp @return
 @check_cancel:
    bit FP_A+1
    bmi @return
@@ -220,9 +228,27 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
    sbc FP_C+1
    sta FP_C+1
 @return:
+.if (.cpu .bitand ::CPU_ISET_65SC02)
+   ply
+   plx
+.else
+   pla
+   tay
+   pla
+   tax
+.endif
    rts
 
 fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
+.if (.cpu .bitand ::CPU_ISET_65SC02)
+   phx
+   phy
+.else
+   txa
+   pha
+   tya
+   pha
+.endif
    ; push original A and B to stack
    lda FP_A
    pha
@@ -295,7 +321,7 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    bmi @check_cancel
    bit FP_A+1
    bmi @negative
-   rts
+   jmp @return
 @check_cancel:
    bit FP_A+1
    bmi @return
@@ -308,6 +334,15 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    sbc FP_C+1
    sta FP_C+1
 @return:
+.if (.cpu .bitand ::CPU_ISET_65SC02)
+   ply
+   plx
+.else
+   pla
+   tay
+   pla
+   tax
+.endif
    rts
 
 .endif

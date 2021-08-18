@@ -34,7 +34,8 @@ mand_get:   ; Input: X,Y - bitmap coordinates
    FP_LDB mand_xmax  ; B = max scaled X
    jsr fp_multiply   ; C = A*B
    FP_TCA            ; A = C (X*Xmax)
-   FP_LDB mand_width ; B = width
+   lda mand_width
+   jsr fp_ldb_byte   ; B = width
    jsr fp_divide     ; C = A/B
    FP_TCA            ; A = C (scaled X with zero min)
    FP_LDB mand_xmin  ; B = min scaled X
@@ -46,7 +47,8 @@ mand_get:   ; Input: X,Y - bitmap coordinates
    FP_LDB mand_ymax  ; B = max scaled Y
    jsr fp_multiply   ; C = A*B
    FP_TCA            ; A = C (Y*Ymax)
-   FP_LDB mand_height ; B = height
+   lda mand_height
+   jsr fp_ldb_byte   ; B = height
    jsr fp_divide     ; C = A/B
    FP_TCA            ; A = C (scaled Y with zero min)
    FP_LDB mand_ymin  ; B = min scaled Y
