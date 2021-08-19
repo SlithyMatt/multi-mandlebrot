@@ -10,6 +10,13 @@ FP_C = $2C
 FP_R = $2E
 .endif
 
+.ifdef __C64__
+FP_A = $FB
+FP_B = $FD
+FP_C = $26
+FP_R = $28
+.endif
+
 fp_lda_byte: ; FP_A = A
    sta FP_A+1
 .if (.cpu .bitand ::CPU_ISET_65SC02)

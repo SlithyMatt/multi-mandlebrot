@@ -51,5 +51,8 @@ start:
    cpy mand_height
    bne @loop
    clc
+   tya
+   tax
+   ldy #0
    jsr PLOT
    rts
