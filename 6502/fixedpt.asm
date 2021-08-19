@@ -60,7 +60,7 @@ fp_ldb_byte: ; FP_B = A
 
 fp_floor_byte: ; A = floor(FP_C)
    lda FP_C+1
-   and #$80
+   bit #$80
    beq @return
    lda FP_C
    cmp #0
@@ -169,24 +169,14 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
    sbc FP_B
    sta FP_B
    lda #0
-   sta FP_B+1 ; B = |B|
+   sbc FP_B+1
+   sta FP_B+1
 @shift_b:
-   lsr FP_B+1
-   ror FP_B
-   lsr FP_B+1
-   ror FP_B
-   lsr FP_B+1
-   ror FP_B
-   lsr FP_B+1
-   ror FP_B
-   lsr FP_B+1
-   ror FP_B
-   lsr FP_B+1
-   ror FP_B
-   lsr FP_B+1
-   ror FP_B
-   lsr FP_B+1
-   ror FP_B
+   lda FP_B+1
+   sta FP_B
+   lda #0
+   sta FP_B+1
+@init_r:
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    stz FP_R
    stz FP_R+1
