@@ -17,7 +17,9 @@ mand_x2:       .word 0
 mand_y2:       .word 0
 mand_xtemp:    .word 0
 
-mand_get:   ; Input: X,Y - bitmap coordinates
+mand_get:   ; Input:
+            ;  A - value for mand_max_it
+            ;  X,Y - bitmap coordinates
             ; Output: A - # iterations executed (0 to mand_max_it-1)
    sta mand_max_it
 .if (.cpu .bitand ::CPU_ISET_65SC02)
