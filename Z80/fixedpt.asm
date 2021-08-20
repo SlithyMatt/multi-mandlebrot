@@ -10,27 +10,47 @@ fp_remainder:
 fp_i: ; loop index
    db 0
 
-MACRO FP_LDA_BYTE source
-   ld b,source
-   ld c,0
-ENDM
+   MACRO FP_LDA_BYTE source
+      ld b,source
+      ld c,0
+   ENDM
 
-MACRO FP_LDB_BYTE source
-   ld d,source
-   ld e,0
-ENDM
+   MACRO FP_LDB_BYTE source
+      ld d,source
+      ld e,0
+   ENDM
 
-MACRO FP_LDA source
-   ld bc,source
-ENDM
+   MACRO FP_LDA_BYTE_IND address
+      ld a,(address)
+      ld b,a
+      ld c,0
+   ENDM
 
-MACRO FP_LDB source
-   ld de,source
-ENDM
+   MACRO FP_LDB_BYTE_IND address
+      ld a,(address)
+      ld d,a
+      ld e,0
+   ENDM
 
-MACRO FP_STC dest
-   ld dest,hl
-ENDM
+   MACRO FP_LDA source
+      ld bc,source
+   ENDM
+
+   MACRO FP_LDB source
+      ld de,source
+   ENDM
+
+   MACRO FP_LDA_IND address
+      ld bc,(address)
+   ENDM
+
+   MACRO FP_LDB_IND address
+      ld de,(address)
+   ENDM
+
+   MACRO FP_STC dest
+      ld (dest),hl
+   ENDM
 
 fp_floor_byte: ; A = floor(FP_C)
    ld a,h
@@ -54,28 +74,28 @@ fp_floor: ; FP_C = floor(FP_C)
    ld l,0
    ret
 
-MACRO FP_TCA ; FP_A = FP_C
-   ld b,h
-   ld c,l
-ENDM
+   MACRO FP_TCA ; FP_A = FP_C
+      ld b,h
+      ld c,l
+   ENDM
 
-MACRO FP_TCB ; FP_B = FP_C
-   ld d,h
-   ld e,l
-ENDM
+   MACRO FP_TCB ; FP_B = FP_C
+      ld d,h
+      ld e,l
+   ENDM
 
-MACRO FP_SUBTRACT ; FP_C = FP_A - FP_B
-   ld h,b
-   ld l,c
-   or a
-   sbc hl,de
-ENDM
+   MACRO FP_SUBTRACT ; FP_C = FP_A - FP_B
+      ld h,b
+      ld l,c
+      or a
+      sbc hl,de
+   ENDM
 
-MACRO FP_ADD: ; FP_C = FP_A + FP_B
-   ld h,b
-   ld l,c
-   add hl,de
-ENDM
+   MACRO FP_ADD: ; FP_C = FP_A + FP_B
+      ld h,b
+      ld l,c
+      add hl,de
+   ENDM
 
 fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
    push de              ; preserve FP_B
@@ -150,7 +170,7 @@ fp_multiply ; FP_C = FP_A * FP_B; FP_R overflow
    jp z,.check_sign_b
    ld hl,0
    or a
-   sbc bc
+   sbc hl,bc
    FP_TCA               ; FP_A = |FP_A|
 .check_sign_b:
    bit 7,d
@@ -166,8 +186,8 @@ fp_multiply ; FP_C = FP_A * FP_B; FP_R overflow
    ld iy,fp_i
    ld (iy),16
 .loop1:
-   srl e
-   rr d
+   srl d
+   rr e
    jp nc,.loop2
    ex af,af'            ;'; preserve A
    ld a,c
@@ -190,7 +210,7 @@ fp_multiply ; FP_C = FP_A * FP_B; FP_R overflow
    rr h
    rr l
    dec (iy)
-   jp nz,loop3
+   jp nz,.loop3
    pop de            ; restore FP_B
    pop bc            ; restore FP_A
    bit 7,d

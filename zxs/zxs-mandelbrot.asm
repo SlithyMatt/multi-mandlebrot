@@ -6,7 +6,7 @@ start:
    jp init
 
 
-   include "../z80/mandelbrot.asm"
+   include "../Z80/mandelbrot.asm"
 
 COLOR_MAP         = $5800
 
@@ -18,39 +18,42 @@ color_codes:
    db 72,80,88,96,104,112,120
 
 init:
-   lda #CLEAR_SCREEN
-   jsr CHROUT
-   lda #REVERSE_ON
-   jsr CHROUT
-   ldx #0
-   ldy #0
-@loop:
-   lda mand_max_it
-   jsr mand_get
-   sta i_result
-   txa
-   pha ; preserve X
-   ldx i_result
-   lda color_codes,x
-   jsr CHROUT
-   lda #SPACE
-   jsr CHROUT
-   pla
-   tax ; restore X
-   inx
-   cpx mand_width
-   bne @loop
-   lda #RETURN
-   jsr CHROUT
-   lda #REVERSE_ON
-   jsr CHROUT
-   ldx #0
-   iny
-   cpy mand_height
-   bne @loop
-   lda #$9A ; restore lt blue text
-   jsr CHROUT
-   rts
+   ld bc,0              ; X = 0, Y = 0
+.loopm:
+   ld a,(mand_max_it)
+   call mand_get
+   ld h,0
+   ld l,c               ; HL = Y
+   sla l
+   rl h
+   sla l
+   rl h
+   sla l
+   rl h
+   sla l
+   rl h
+   sla l
+   rl h                 ; HL = Y*32
+   ld de,COLOR_MAP
+   add hl,de            ; HL = COLOR_MAP+Y*32
+   ld d,0
+   ld e,b               ; DE = X
+   add hl,de            ; HL = color attribute (x,y)
+   ld ix,color_codes
+   ld e,a               ; DE = I
+   add ix,de            ; IX = &(color code for I)
+   ld a,(ix)            ; A = color code for I
+   ld (hl),a            ; set color code
+   inc b                ; increment X
+   ld a,(mand_width)
+   cp b
+   jp nz,.loopm         ; loop until X = width
+   ld b,0               ; X = 0
+   inc c                ; increment Y
+   ld a,(mand_height)
+   cp c
+   jp nz,.loopm         ; loop until Y = height
+   ret
 
 
 ; Deployment
@@ -58,7 +61,7 @@ LENGTH      = $ - start
 
 ; option 1: tape
    include TapLib.asm
-   MakeTape ZXSPECTRUM48, "pop.tap", "pop", start, LENGTH, start
+   MakeTape ZXSPECTRUM48, "man48.tap", "man48", start, LENGTH, start
 
 ; option 2: snapshot
-   SAVESNA "pop.sna", start
+   SAVESNA "man48.sna", start
