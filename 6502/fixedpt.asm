@@ -176,7 +176,6 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
    sta FP_B
    lda #0
    sta FP_B+1
-@init_r:
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    stz FP_R
    stz FP_R+1
@@ -277,6 +276,8 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
 @init_c:
    lda #0
    sta FP_R
+   sta FP_C
+   sta FP_C+1
    ldx #16
 @loop1:
    lsr FP_B+1

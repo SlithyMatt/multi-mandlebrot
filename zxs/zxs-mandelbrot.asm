@@ -20,7 +20,6 @@ color_codes:
 init:
    ld bc,0              ; X = 0, Y = 0
 .loopm:
-   ld a,(mand_max_it)
    call mand_get
    ld h,0
    ld l,c               ; HL = Y

@@ -25,7 +25,6 @@ start:
    ldx #0
    ldy #0
 @loop:
-   lda mand_max_it
    jsr mand_get
    sta i_result
    sty FP_A

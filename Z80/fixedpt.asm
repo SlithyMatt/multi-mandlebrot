@@ -10,6 +10,9 @@ fp_remainder:
 fp_i: ; loop index
    db 0
 
+fp_scratch:
+   dw 0
+
    MACRO FP_LDA_BYTE source
       ld b,source
       ld c,0
@@ -116,14 +119,14 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
    or a
    sbc hl,de
    ld d,h
-   ld l,e               ; FP_B = |FP_B|
+   ld e,l               ; FP_B = |FP_B|
    pop hl               ; restore FP_C
 .shift_b:
    ld e,d
    ld d,0
    ld ix,fp_remainder
-   ld (ix),0
-   ld (ix+1),0          ; FP_R = 0
+   ld (ix),d
+   ld (ix+1),d          ; FP_R = 0
    push bc              ; preserve FP_A
    ld b,16
 .loop1:
@@ -183,17 +186,19 @@ fp_multiply ; FP_C = FP_A * FP_B; FP_R overflow
    ld ix,fp_remainder
    ld a,0
    ld (ix),a
+   ld h,a
+   ld l,a
    ld iy,fp_i
    ld (iy),16
 .loop1:
    srl d
    rr e
    jp nc,.loop2
-   ex af,af'            ;'; preserve A
+   ld (fp_scratch),a    ; preserve A
    ld a,c
-   add (ix)
+   add a,(ix)
    ld (ix),a
-   ex af,af'            ;'; restore A
+   ld a,(fp_scratch)    ; restore A
    adc a,b
 .loop2:
    rr a

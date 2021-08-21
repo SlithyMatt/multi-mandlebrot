@@ -20,10 +20,8 @@ mand_y2:       dw 0
 mand_xtemp:    dw 0
 
 mand_get:   ; Input:
-            ;  A - value for mand_max_it
             ;  B,C - X,Y bitmap coordinates
             ; Output: A - # iterations executed (0 to mand_max_it-1)
-   ld (mand_max_it),a
    push bc                    ; preserve BC (X,Y)
    FP_LDA_BYTE b              ; A = X coordinate
    FP_LDB_IND mand_xmax       ; B = max scaled X
