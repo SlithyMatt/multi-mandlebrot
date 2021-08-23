@@ -139,7 +139,7 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
    ld c,a
    ld a,(ix+1)
    sbc a,d
-   jp nc,.loop2         ; Did subtraction succeed?
+   jp c,.loop2          ; Did subtraction succeed?
    ld (ix),c            ; if yes, save it
    ld (ix+1),a
    inc l                ; and record a 1 in the quotient
