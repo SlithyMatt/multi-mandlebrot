@@ -97,10 +97,11 @@ start:
    sta ZP_PTR+1      ; ZP_PTR = SCREEN_MAP+Y*$280+X*$10
    ldx i_result
    lda color_codes,x
-   ldy #16
+   ldy #0
 @pix_loop:
    sta (ZP_PTR),y
-   dey
+   iny
+   cpy #16
    bne @pix_loop
    pla
    tay ; restore Y
