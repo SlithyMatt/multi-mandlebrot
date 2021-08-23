@@ -1,2 +1,2 @@
-# multi-mandlebrot
-Multi-platform Mandlebrot set plots
+# multi-mandelbrot
+Multi-platform Mandelbrot set plots
