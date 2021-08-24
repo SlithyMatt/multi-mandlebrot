@@ -57,24 +57,24 @@ fp_scratch:
 
 fp_floor_byte: ; A = floor(FP_C)
    ld a,h
-   bit 7,a
-   ret z
-   ld a,0
-   cp l
+   or a
+   ret p
+   ld a,l
+   or a
    ld a,h
    ret z
    dec a
    ret
 
 fp_floor: ; FP_C = floor(FP_C)
+   xor a
    bit 7,h
    jp z,.zerofrac
-   ld a,0
    cp l
    jp z, .zerofrac
    dec h
 .zerofrac:
-   ld l,0
+   ld l,a
    ret
 
    MACRO FP_TCA ; FP_A = FP_C
@@ -94,7 +94,7 @@ fp_floor: ; FP_C = floor(FP_C)
       sbc hl,de
    ENDM
 
-   MACRO FP_ADD: ; FP_C = FP_A + FP_B
+   MACRO FP_ADD ; FP_C = FP_A + FP_B
       ld h,b
       ld l,c
       add hl,de
@@ -118,34 +118,36 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
    ld hl,0
    or a
    sbc hl,de
-   ld d,h
-   ld e,l               ; FP_B = |FP_B|
+   ex de,hl             ; FP_B = |FP_B|
    pop hl               ; restore FP_C
 .shift_b:
    ld e,d
    ld d,0
-   ld ix,fp_remainder
-   ld (ix),d
-   ld (ix+1),d          ; FP_R = 0
    push bc              ; preserve FP_A
+   ld bc,0
+   push bc
    ld b,16
 .loop1:
-   sla l                ; Shift hi bit of FP_C into REM
-   rl h
-   rl (ix)
-   rl (ix+1)
-   ld a,(ix)
+   add hl,hl                ; Shift hi bit of FP_C into REM
+   ex  (sp),hl
+   adc hl,hl
+   ld a,l
    sub e                ; trial subtraction
    ld c,a
-   ld a,(ix+1)
+   ld a,h
    sbc a,d
    jp c,.loop2          ; Did subtraction succeed?
-   ld (ix),c            ; if yes, save it
-   ld (ix+1),a
+   ld l,c            ; if yes, save it
+   ld h,a
+   ex (sp),hl
    inc l                ; and record a 1 in the quotient
+   jp .loop3
 .loop2:
+   ex (sp),hl
+.loop3
    dec b
    jp nz,.loop1
+   pop de
    pop bc               ; restore FP_A
    pop de               ; restore FP_B
    bit 7,d
@@ -183,39 +185,48 @@ fp_multiply ; FP_C = FP_A * FP_B; FP_R overflow
    sbc hl,de
    FP_TCB               ; FP_B = |FP_B|
 .init_c:
-   ld ix,fp_remainder
-   ld a,0
-   ld (ix),a
+   ld ixl,0
+   xor a
    ld h,a
    ld l,a
-   ld iy,fp_i
-   ld (iy),16
+   exx 
+   ld h,a
+   ld l,a
+   ld d,a
+   ld e,a
+   exx
+   ex af,af'
+   ld a,16
 .loop1:
+   ex af,af'
    srl d
    rr e
+   push bc
+   exx
+   pop bc
    jp nc,.loop2
-   ld (fp_scratch),a    ; preserve A
-   ld a,c
-   add a,(ix)
-   ld (ix),a
-   ld a,(fp_scratch)    ; restore A
-   adc a,b
+   add hl,bc
 .loop2:
-   rr a
-   rr (ix)
    rr h
    rr l
-   dec (iy)
+   exx
+   rr h
+   rr l
+   ex af,af'
+   dec a
    jp nz,.loop1
-   ld (ix+1),a
-   ld (iy),8
+   exx
+   ld h,a
+   ld b,8
 .loop3:
-   srl (ix+1)
-   rr (ix)
+   srl h
+   rr l
+   exx
    rr h
    rr l
-   dec (iy)
-   jp nz,.loop3
+   exx
+   djnz .loop3
+   exx
    pop de            ; restore FP_B
    pop bc            ; restore FP_A
    bit 7,d
