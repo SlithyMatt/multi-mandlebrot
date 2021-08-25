@@ -8,6 +8,8 @@ start:
 
    include "../Z80/mandelbrot.asm"
 
+ROM_CLS           = $0DAF
+
 COLOR_MAP         = $5800
 
 
@@ -18,6 +20,7 @@ color_codes:
    db 72,80,88,96,104,112,120
 
 init:
+   call ROM_CLS
    ld bc,0              ; X = 0, Y = 0
 .loopm:
    call mand_get

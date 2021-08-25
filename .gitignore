@@ -56,3 +56,5 @@ dkms.conf
 *.list
 *.lst
 *.tap
+*.Boot
+*.ssd

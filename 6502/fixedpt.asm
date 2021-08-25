@@ -17,6 +17,13 @@ FP_C = $26
 FP_R = $28
 .endif
 
+.ifdef __BBC__
+FP_A = $68
+FP_B = $6A
+FP_C = $6C
+FP_R = $6E
+.endif
+
 fp_lda_byte: ; FP_A = A
    sta FP_A+1
 .if (.cpu .bitand ::CPU_ISET_65SC02)
@@ -60,7 +67,7 @@ fp_ldb_byte: ; FP_B = A
 
 fp_floor_byte: ; A = floor(FP_C)
    lda FP_C+1
-   bit #$80
+   and #$80
    beq @return
    lda FP_C
    cmp #0

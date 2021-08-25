@@ -1,4 +1,4 @@
-.org $1900
+.org $3000
 .segment "STARTUP"
 .segment "INIT"
 .segment "ONCE"
@@ -109,10 +109,14 @@ start:
    tax ; restore X
    inx
    cpx mand_width
-   bne @loop
+   beq @nexty
+   jmp @loop
+@nexty:
    ldx #0
    iny
    cpy mand_height
-   bne @loop
+   beq @done
+   jmp @loop
+@done:
    ; place READY prompt?
    rts
