@@ -28,33 +28,33 @@ init:
    call mand_get
    ld h,0
    ld l,c               ; HL = Y
-   sla l
-   rl h
-   sla l
-   rl h
-   sla l
-   rl h
-   sla l
-   rl h
-   sla l
-   rl h                 ; HL = Y*32
+   add hl,hl
+   add hl,hl
+   add hl,hl
+   add hl,hl
+   add hl,hl            ; HL = Y*32
    ld de,COLOR_MAP
    add hl,de            ; HL = COLOR_MAP+Y*32
    ld d,0
    ld e,b               ; DE = X
    add hl,de            ; HL = color attribute (x,y)
-   ld ix,color_codes
-   ld e,a               ; DE = I
-   add ix,de            ; IX = &(color code for I)
-   ld a,(ix)            ; A = color code for I
-   ld (hl),a            ; set color code
+   ex de,hl
+   ld hl,color_codes
+   add a,l              ; DE = I
+   ld l,a
+   jp nc,.loopm1
+   inc h
+.loopm1:
+   ;add ix,de            ; IX = &(color code for I)
+   ld a,(hl)            ; A = color code for I
+   ld (de),a            ; set color code
    inc b                ; increment X
-   ld a,(mand_width)
+   ld a,mand_width
    cp b
    jp nz,.loopm         ; loop until X = width
    ld b,0               ; X = 0
    inc c                ; increment Y
-   ld a,(mand_height)
+   ld a,mand_height
    cp c
    jp nz,.loopm         ; loop until Y = height
    pop hl               ; restore hl' register
