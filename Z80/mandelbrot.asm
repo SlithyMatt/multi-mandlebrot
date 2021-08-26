@@ -5,9 +5,9 @@ mand_xmax:     equ $0380 ; 3.5
 mand_ymin:     equ $FF00 ; -1
 mand_ymax:     equ $0200 ; 2
 
-mand_width:    equ 32
-mand_height:   equ 22
-mand_max_it:   equ 15
+mand_width:    equ 64
+mand_height:   equ 44
+mand_max_it:   equ 17
 
 mand_i:        db 0
 
@@ -24,15 +24,15 @@ mand_get:   ; Input:
             ; Output: A - # iterations executed (0 to mand_max_it-1)
    push bc                    ; preserve BC (X,Y)
    ld c,0                     ; BC = X
-   ld de,mand_xmax            ; DE = Xmax
-   call fp_multiply           ; HL = X*Xmax
-   ld c,l                     ; BC = X*Xmax
-   ld b,h
    ld d,mand_width            ; DE = width
    ld e,0
-   call fp_divide             ; HL = X*Xmax/width
+   call fp_divide             ; HL = X/width
+   ld c,l                     ; BC = X/width
+   ld b,h
+   ld de,mand_xmax            ; DE = Xmax
+   call fp_multiply           ; HL = X/width*Xmax
    ld de,mand_xmin            ; DE = Xmin
-   add hl,de                  ; HL = X*Xmax/width - Xmin
+   add hl,de                  ; HL = X/width*Xmax - Xmin
    ld (mand_x0),hl            ; X0 = HL
    pop bc                     ; retrieve X,Y from stack
 
