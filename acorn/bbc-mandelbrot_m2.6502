@@ -1,34 +1,60 @@
-.org $3000
-.segment "STARTUP"
-.segment "INIT"
-.segment "ONCE"
-.segment "CODE"
+ORG $2000
 
-   jmp start
+.start
+   jmp main
 
-.include "../6502/mandelbrot.asm"
+INCLUDE "mandelbrot.6502"
 
 ZP_PTR            = $50
 ZP_SCRATCH        = $52
 
-SCREEN_MODE       = $0355
+CRTC_REG_ADDR     = $FE00
+CRTC_REG_DATA     = $FE01
+VIDEO_ULA_CTRL    = $FE20
+VIDEO_ULA_PAL     = $FE21
 SCREEN_MAP        = $3000
 
-i_result: .byte 0
+MODE_2            = $F4
 
-color_codes:
-   .byte $3F,$03,$0C,$0F   ; white, red, green, yellow
-   .byte $30,$33,$3C       ; blue, magenta, cyan
-   .byte $3F,$03,$0C,$0F   ; white, red, green, yellow
-   .byte $30,$33,$3C,$00   ; blue, magenta, cyan, black
+.crtc_cfg
+   EQUB $7F,$50,$62,$28,$26,$00
+   EQUB $20,$22,$01,$07,$67,$08
 
-start:
-   lda #2
-   sta SCREEN_MODE
-   ; clear screen?
+.palette
+   EQUB $07,$16,$25,$34,$43,$52,$61,$70
+   EQUB $8F,$9E,$AD,$BC,$CB,$DA,$E9,$F8
+
+
+.i_result EQUB 0
+
+.color_codes
+   EQUB $3F,$03,$0C,$0F   ; white, red, green, yellow
+   EQUB $30,$33,$3C       ; blue, magenta, cyan
+   EQUB $3F,$03,$0C,$0F   ; white, red, green, yellow
+   EQUB $30,$33,$3C,$00   ; blue, magenta, cyan, black
+
+.*main
+{
+   lda #MODE_2
+   sta VIDEO_ULA_CTRL
+   ldx #0
+.crtc_loop
+   stx CRTC_REG_ADDR
+   lda crtc_cfg,x
+   sta CRTC_REG_DATA
+   inx
+   cpx #12
+   bne crtc_loop
+   ldx #0
+.ula_loop
+   lda .palette,x
+   sta VIDEO_ULA_PAL
+   inx
+   cpx #16
+   bne ula_loop
    ldx #0
    ldy #0
-@loop:
+.loop
    lda mand_max_it
    jsr mand_get
    sta i_result
@@ -98,25 +124,30 @@ start:
    ldx i_result
    lda color_codes,x
    ldy #0
-@pix_loop:
+.pix_loop
    sta (ZP_PTR),y
    iny
    cpy #16
-   bne @pix_loop
+   bne pix_loop
    pla
    tay ; restore Y
    pla
    tax ; restore X
    inx
    cpx mand_width
-   beq @nexty
-   jmp @loop
-@nexty:
+   beq nexty
+   jmp loop
+.nexty
    ldx #0
    iny
    cpy mand_height
-   beq @done
-   jmp @loop
-@done:
+   beq done
+   jmp loop
+.done
    ; place READY prompt?
    rts
+}
+
+.end
+
+SAVE "man", start, end

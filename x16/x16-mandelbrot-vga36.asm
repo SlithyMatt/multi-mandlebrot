@@ -33,7 +33,7 @@ start:
    sta VERA_dc_hscale
    sta VERA_dc_vscale
    lda #$68
-   sta $VERA_L1_config
+   sta VERA_L1_config
    lda #$07
    sta VERA_L0_config
    lda #(VRAM_BITMAP >> 9)
@@ -58,16 +58,27 @@ start:
 @loop:
    jsr mand_get
    clc
+   cmp #(COLOR_DEPTH-1)
+   bne @offset
+   lda #0
+   bra @set_pixel
+@offset:
    adc #32
+@set_pixel:
    sta VERA_data0
    inx
    cpx mand_width
    bne @loop
-   ldx #(320 - PLOT_WIDTH)
-@blank_loop:
+   ldx #0
+@blank_loop1:
    stz VERA_data0
    dex
-   bne @blank_loop
+   bne @blank_loop1
+   ldx #(320-256-PLOT_WIDTH)
+@blank_loop2:
+   stz VERA_data0
+   dex
+   bne @blank_loop2
    iny
    cpy mand_height
    bne @loop
