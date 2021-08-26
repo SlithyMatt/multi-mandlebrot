@@ -5,6 +5,10 @@
 start:
    jp init
 
+mand_width:    equ 32
+mand_height:   equ 22
+mand_max_it:   equ 15
+
 
    include "../Z80/mandelbrot.asm"
 

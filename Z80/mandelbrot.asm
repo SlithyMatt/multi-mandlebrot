@@ -5,10 +5,6 @@ mand_xmax:     equ $0380 ; 3.5
 mand_ymin:     equ $FF00 ; -1
 mand_ymax:     equ $0200 ; 2
 
-mand_width:    equ 64
-mand_height:   equ 44
-mand_max_it:   equ 17
-
 mand_i:        db 0
 
 mand_x0:       dw 0
