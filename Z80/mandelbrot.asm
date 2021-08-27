@@ -1,9 +1,27 @@
    include "fixedpt.asm"
 
-mand_xmin:     equ $FD80 ; -2.5
-mand_xmax:     equ $0380 ; 3.5
-mand_ymin:     equ $FF00 ; -1
-mand_ymax:     equ $0200 ; 2
+   IFNUSED MAND_XMIN
+MAND_XMIN   = $FD80 ; -2.5
+   ENDIF
+   IFNUSED MAND_XMAX
+MAND_XMAX   = $0380 ; 3.5
+   ENDIF
+   IFNUSED MAND_YMIN
+MAND_YMIN   = $FF00 ; -1
+   ENDIF
+   IFNUSED MAND_YMAX
+MAND_YMAX   = $0200 ; 2
+   ENDIF
+
+   IFNUSED MAND_WIDTH
+MAND_WIDTH  = 32
+   ENDIF
+   IFNUSED MAND_HEIGHT
+MAND_HEIGHT = 22
+   ENDIF
+   IFNUSED MAND_MAX_IT
+MAND_MAX_IT = 15
+   ENDIF
 
 mand_i:        db 0
 
@@ -17,17 +35,17 @@ mand_xtemp:    dw 0
 
 mand_get:   ; Input:
             ;  B,C - X,Y bitmap coordinates
-            ; Output: A - # iterations executed (0 to mand_max_it-1)
+            ; Output: A - # iterations executed (0 to MAND_MAX_IT-1)
    push bc                    ; preserve BC (X,Y)
    ld c,0                     ; BC = X
-   ld d,mand_width            ; DE = width
+   ld d,MAND_WIDTH            ; DE = width
    ld e,0
    call fp_divide             ; HL = X/width
    ld c,l                     ; BC = X/width
    ld b,h
-   ld de,mand_xmax            ; DE = Xmax
+   ld de,MAND_XMAX            ; DE = Xmax
    call fp_multiply           ; HL = X/width*Xmax
-   ld de,mand_xmin            ; DE = Xmin
+   ld de,MAND_XMIN            ; DE = Xmin
    add hl,de                  ; HL = X/width*Xmax - Xmin
    ld (mand_x0),hl            ; X0 = HL
    pop bc                     ; retrieve X,Y from stack
@@ -35,14 +53,14 @@ mand_get:   ; Input:
    push bc                    ; put X,Y back on stack
    ld b,c
    ld c,0                     ;BC = Y
-   ld de,mand_ymax            ;DE = Ymax
+   ld de,MAND_YMAX            ;DE = Ymax
    call fp_multiply           ;HL = Y*Ymax
    ld c,l
    ld b,h                     ; BC = Y*Ymax
-   ld d,mand_height           ; DE = height
+   ld d,MAND_HEIGHT           ; DE = height
    ld e,0
    call fp_divide             ; HL = Y*Ymax/height
-   ld de,mand_ymin            ; DE = Ymin
+   ld de,MAND_YMIN            ; DE = Ymin
    add hl,de                  ; HL = Y*Ymax/height + Y
    ld (mand_y0),hl            ; Y0 = HL
 
@@ -93,7 +111,7 @@ mand_get:   ; Input:
    ld (mand_x),hl             ; X = HL
    pop af                     ; A = I
    inc a                      ; A = I + 1
-   cp mand_max_it             ; is A == maxI
+   cp MAND_MAX_IT             ; is A == maxI
    jp nz,.loopi
    push af                    ; need to push af on stack since there is another branch to .dec_i
 .dec_i:

@@ -58,3 +58,4 @@ dkms.conf
 *.tap
 *.Boot
 *.ssd
+*.bin

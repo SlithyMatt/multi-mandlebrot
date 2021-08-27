@@ -1,4 +1,4 @@
-   ;DEVICE ???
+   DEVICE NOSLOT64K
 
    org $4000
 
@@ -15,7 +15,7 @@ i_result: db 0
 screen_ptr: dw 0
 
 color_codes:
-   db $C0,$0C,$CC,$30,$F0,$3C,$FC,
+   db $C0,$0C,$CC,$30,$F0,$3C,$FC
    db $03,$C3,$0F,$33,$F3,$3F,$FF,$00
 
 init:
@@ -64,12 +64,12 @@ init:
    dec e
    jp nz,.loopp
    inc b                ; increment X
-   ld a,(mand_width)
+   ld a,MAND_WIDTH
    cp b
    jp nz,.loopm         ; loop until X = width
    ld b,0               ; X = 0
    inc c                ; increment Y
-   ld a,(mand_height)
+   ld a,MAND_HEIGHT
    cp c
    jp nz,.loopm         ; loop until Y = height
    ret
@@ -78,4 +78,4 @@ init:
 ; Deployment
 LENGTH      = $ - start
 
-   SAVESNA "man.sna", start
+   SAVEBIN "man.bin",start,LENGTH

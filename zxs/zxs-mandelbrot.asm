@@ -5,11 +5,6 @@
 start:
    jp init
 
-mand_width:    equ 32
-mand_height:   equ 22
-mand_max_it:   equ 15
-
-
    include "../Z80/mandelbrot.asm"
 
 ROM_CLS           = $0DAF
@@ -53,12 +48,12 @@ init:
    ld a,(hl)            ; A = color code for I
    ld (de),a            ; set color code
    inc b                ; increment X
-   ld a,mand_width
+   ld a,MAND_WIDTH
    cp b
    jp nz,.loopm         ; loop until X = width
    ld b,0               ; X = 0
    inc c                ; increment Y
-   ld a,mand_height
+   ld a,MAND_HEIGHT
    cp c
    jp nz,.loopm         ; loop until Y = height
    pop hl               ; restore hl' register

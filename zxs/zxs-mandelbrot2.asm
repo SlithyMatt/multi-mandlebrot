@@ -5,9 +5,9 @@
 start:
    jp init
 
-mand_width:    equ 64
-mand_height:   equ 44
-mand_max_it:   equ 17
+MAND_WIDTH  = 64
+MAND_HEIGHT = 44
+MAND_MAX_IT = 17
 
    include "../Z80/mandelbrot.asm"
 
@@ -92,12 +92,12 @@ init:
     djnz .loopm2         ; repeat 4 times
     pop bc
     inc b                ; increment X
-    ld a,mand_width
+    ld a,MAND_WIDTH
     cp b
     jp nz,.loopm         ; loop until X = width
     ld b,0               ; X = 0
     inc c                ; increment Y
-    ld a,mand_height
+    ld a,MAND_HEIGHT
     cp c
     jp nz,.loopm         ; loop until Y = height
     pop hl               ; restore hl' register
