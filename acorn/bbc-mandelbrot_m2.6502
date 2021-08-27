@@ -12,18 +12,7 @@ CRTC_REG_ADDR     = $FE00
 CRTC_REG_DATA     = $FE01
 VIDEO_ULA_CTRL    = $FE20
 VIDEO_ULA_PAL     = $FE21
-SCREEN_MAP        = $3000
-
-MODE_2            = $F4
-
-.crtc_cfg
-   EQUB $7F,$50,$62,$28,$26,$00
-   EQUB $20,$22,$01,$07,$67,$08
-
-.palette
-   EQUB $07,$16,$25,$34,$43,$52,$61,$70
-   EQUB $8F,$9E,$AD,$BC,$CB,$DA,$E9,$F8
-
+SCREEN_MAP        = $4000
 
 .i_result EQUB 0
 
@@ -35,23 +24,14 @@ MODE_2            = $F4
 
 .*main
 {
-   lda #MODE_2
-   sta VIDEO_ULA_CTRL
-   ldx #0
-.crtc_loop
-   stx CRTC_REG_ADDR
-   lda crtc_cfg,x
+   lda #12
+   sta CRTC_REG_ADDR
+   lda #>(SCREEN_MAP/8)
    sta CRTC_REG_DATA
-   inx
-   cpx #12
-   bne crtc_loop
-   ldx #0
-.ula_loop
-   lda .palette,x
-   sta VIDEO_ULA_PAL
-   inx
-   cpx #16
-   bne ula_loop
+   lda #13
+   sta CRTC_REG_ADDR
+   lda #<(SCREEN_MAP/8)
+   sta CRTC_REG_DATA
    ldx #0
    ldy #0
 .loop
@@ -151,3 +131,4 @@ MODE_2            = $F4
 .end
 
 SAVE "man", start, end
+PUTBASIC "launch.bas","launch"
