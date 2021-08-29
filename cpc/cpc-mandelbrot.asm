@@ -343,16 +343,21 @@ mand_get:   ; Input:
 
 
 SCREEN_RAM              equ #C000
-
+SET_MODE                  equ #BC0E
 
 i_result: db 0
 screen_ptr: dw 0
 
 color_codes:
-   db #C0,#0C,#CC,#30,#F0,#3C,#FC
-   db #03,#C3,#0F,#33,#F3,#3F,#FF,#00
+   db #C0,#0C,#CC,#30,#00,#3C,#FC
+   db #03,#C3,#0F,#33,#F3,#3F,#FF,#F0
 
 init:
+   ld a,0
+   call SET_MODE
+   di
+   ex af,af'
+   push af
    ld bc,0              ; X = 0, Y = 0
 .loopm:
    call mand_get
@@ -382,10 +387,13 @@ init:
    sla e
    rl d                 ; DE = X*2
    add hl,de            ; HL = Y*80+X*2 (UL pixels of 4x8 square)
+   ex hl,de
+   ld hl,SCREEN_RAM
+   add hl,de            ; HL = SCREEN_RAM+Y*80+X*2 (UL pixels of 4x8 square)
    ld d,4               ; column counter
    ld e,8               ; row counter
-.loopp
    ld a,(ix)
+.loopp
    ld (hl),a
    inc hl
    dec d
@@ -406,5 +414,8 @@ init:
    ld a,MAND_HEIGHT
    cp c
    jp nz,loopm         ; loop until Y = height
+   pop af
+   ex af,af'
+   ei
    ret
 
