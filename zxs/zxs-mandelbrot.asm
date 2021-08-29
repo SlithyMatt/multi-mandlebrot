@@ -19,6 +19,7 @@ color_codes:
    db 72,80,88,96,104,112,120
 
 init:
+   di
    exx                  ; save hl' register on stack
    push hl              ; to correct return into basic
    call ROM_CLS
@@ -58,6 +59,7 @@ init:
    jp nz,.loopm         ; loop until Y = height
    pop hl               ; restore hl' register
    exx                  ; from stack
+   ei
    ret
 
 

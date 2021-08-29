@@ -51,6 +51,42 @@ fp_ldb_byte: ; FP_B = A
    sta FP_B+1
 .endmacro
 
+.macro FP_LDA_IMM val
+   lda #<val
+   sta FP_A
+   lda #>val
+   sta FP_A+1
+.endmacro
+
+.macro FP_LDB_IMM val
+   lda #<val
+   sta FP_B
+   lda #>val
+   sta FP_B+1
+.endmacro
+
+.macro FP_LDA_IMM_INT val
+.if (.cpu .bitand ::CPU_ISET_65SC02)
+   stz FP_A
+.else
+   lda #0
+   sta FP_A
+.endif
+   lda #val
+   sta FP_A+1
+.endmacro
+
+.macro FP_LDB_IMM_INT val
+.if (.cpu .bitand ::CPU_ISET_65SC02)
+   stz FP_B
+.else
+   lda #0
+   sta FP_B
+.endif
+   lda #val
+   sta FP_B+1
+.endmacro
+
 .macro FP_STC addr
    lda FP_C
    sta addr

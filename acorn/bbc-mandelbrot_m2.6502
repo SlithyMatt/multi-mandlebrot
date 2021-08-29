@@ -24,6 +24,7 @@ SCREEN_MAP        = $4000
 
 .*main
 {
+   sei
    lda #12
    sta CRTC_REG_ADDR
    lda #>(SCREEN_MAP/8)
@@ -35,7 +36,6 @@ SCREEN_MAP        = $4000
    ldx #0
    ldy #0
 .loop
-   lda mand_max_it
    jsr mand_get
    sta i_result
    txa
@@ -114,17 +114,18 @@ SCREEN_MAP        = $4000
    pla
    tax ; restore X
    inx
-   cpx mand_width
+   cpx #MAND_WIDTH
    beq nexty
    jmp loop
 .nexty
    ldx #0
    iny
-   cpy mand_height
+   cpy #MAND_HEIGHT
    beq done
    jmp loop
 .done
    ; place READY prompt?
+   cli
    rts
 }
 

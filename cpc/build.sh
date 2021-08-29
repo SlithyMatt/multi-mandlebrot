@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sjasmplus --lst cpc-mandelbrot.asm
+# TODO - find assembler

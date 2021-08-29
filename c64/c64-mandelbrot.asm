@@ -20,6 +20,7 @@ PLOT              = $FFF0
 i_result: .byte 0
 
 start:
+   sei
    lda #CLEAR_SCREEN
    jsr CHROUT
    ldx #0
@@ -81,15 +82,16 @@ start:
    pla
    tax ; restore X
    inx
-   cpx mand_width
+   cpx #MAND_WIDTH
    bne @loop
    ldx #0
    iny
-   cpy mand_height
+   cpy #MAND_HEIGHT
    bne @loop
    clc
    tya
    tax
    ldy #0
    jsr PLOT
+   cli
    rts
