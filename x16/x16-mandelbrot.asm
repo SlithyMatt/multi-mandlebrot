@@ -19,6 +19,7 @@ VERA_dc_vscale    = $9F2B
 PLOT              = $FFF0
 
 start:
+   sei
    lda #64              ; 2x scale (40x30 characters)
    sta VERA_dc_hscale
    sta VERA_dc_vscale
@@ -43,15 +44,16 @@ start:
    asl                  ; A = I << 4
    sta VERA_data0       ; Set background color
    inx
-   cpx mand_width
+   cpx #MAND_WIDTH
    bne @loop
    ldx #0
    iny
-   cpy mand_height
+   cpy #MAND_HEIGHT
    bne @loop
    clc
    tya
    tax
    ldy #0
    jsr PLOT
+   cli
    rts

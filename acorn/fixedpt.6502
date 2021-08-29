@@ -29,6 +29,34 @@ MACRO FP_LDB addr
    sta FP_B+1
 ENDMACRO
 
+MACRO FP_LDA_IMM val
+   lda #<val
+   sta FP_A
+   lda #>val
+   sta FP_A+1
+ENDMACRO
+
+MACRO FP_LDB_IMM val
+   lda #<val
+   sta FP_B
+   lda #>val
+   sta FP_B+1
+ENDMACRO
+
+MACRO FP_LDA_IMM_INT val
+   lda #0
+   sta FP_A
+   lda #val
+   sta FP_A+1
+ENDMACRO
+
+MACRO FP_LDB_IMM_INT val
+   lda #0
+   sta FP_B
+   lda #val
+   sta FP_B+1
+ENDMACRO
+
 MACRO FP_STC addr
    lda FP_C
    sta addr

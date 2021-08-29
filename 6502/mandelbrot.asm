@@ -1,13 +1,19 @@
 .include "fixedpt.asm"
 
-mand_xmin:     .word $FD80 ; -2.5
-mand_xmax:     .word $0380 ; 3.5
-mand_ymin:     .word $FF00 ; -1
-mand_ymax:     .word $0200 ; 2
+MAND_XMIN = $FD80 ; -2.5
+MAND_XMAX = $0380 ; 3.5
+MAND_YMIN = $FF00 ; -1
+MAND_YMAX = $0200 ; 2
 
-mand_width:    .byte 32
-mand_height:   .byte 22
-mand_max_it:   .byte 15
+.ifndef MAND_WIDTH
+MAND_WIDTH = 32
+.endif
+.ifndef MAND_HEIGHT
+MAND_HEIGHT = 22
+.endif
+.ifndef MAND_MAX_IT
+MAND_MAX_IT = 15
+.endif
 
 mand_x0:       .word 0
 mand_y0:       .word 0
@@ -19,7 +25,7 @@ mand_xtemp:    .word 0
 
 mand_get:   ; Input:
             ;  X,Y - bitmap coordinates
-            ; Output: A - # iterations executed (0 to mand_max_it-1)
+            ; Output: A - # iterations executed (0 to MAND_MAX_IT-1)
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    phx
    phy
@@ -31,27 +37,25 @@ mand_get:   ; Input:
 .endif
    txa
    jsr fp_lda_byte   ; A = X coordinate
-   FP_LDB mand_xmax  ; B = max scaled X
+   FP_LDB_IMM MAND_XMAX  ; B = max scaled X
    jsr fp_multiply   ; C = A*B
    FP_TCA            ; A = C (X*Xmax)
-   lda mand_width
-   jsr fp_ldb_byte   ; B = width
+   FP_LDB_IMM_INT MAND_WIDTH ; B = width
    jsr fp_divide     ; C = A/B
    FP_TCA            ; A = C (scaled X with zero min)
-   FP_LDB mand_xmin  ; B = min scaled X
+   FP_LDB_IMM MAND_XMIN  ; B = min scaled X
    jsr fp_add        ; C = A+B (scaled X)
    FP_STC mand_x0    ; x0 = C
    pla               ; retrieve Y from stack
    pha               ; put Y back on stack
    jsr fp_lda_byte   ; A = Y coordinate
-   FP_LDB mand_ymax  ; B = max scaled Y
+   FP_LDB_IMM MAND_YMAX  ; B = max scaled Y
    jsr fp_multiply   ; C = A*B
    FP_TCA            ; A = C (Y*Ymax)
-   lda mand_height
-   jsr fp_ldb_byte   ; B = height
+   FP_LDB_IMM_INT  MAND_HEIGHT ; B = height
    jsr fp_divide     ; C = A/B
    FP_TCA            ; A = C (scaled Y with zero min)
-   FP_LDB mand_ymin  ; B = min scaled Y
+   FP_LDB_IMM MAND_YMIN  ; B = min scaled Y
    jsr fp_add        ; C = A+B (scaled Y)
    FP_STC mand_y0    ; y0 = C
 .if (.cpu .bitand ::CPU_ISET_65SC02)
@@ -110,7 +114,7 @@ mand_get:   ; Input:
    lda mand_xtemp+1
    sta mand_x+1      ; X = Xtemp
    inx
-   cpx mand_max_it
+   cpx #MAND_MAX_IT
    beq @dec_i
    jmp @loop
 @dec_i:

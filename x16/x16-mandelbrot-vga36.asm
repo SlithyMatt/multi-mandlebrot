@@ -6,11 +6,11 @@
 
    jmp start
 
-.include "../6502/mandelbrot.asm"
+MAND_WIDTH = 36
+MAND_HEIGHT = 30
+MAND_MAX_IT = 48
 
-PLOT_WIDTH        = 36
-PLOT_HEIGHT       = 24
-COLOR_DEPTH       = 48
+.include "../6502/mandelbrot.asm"
 
 VERA_ctrl         = $9F25
 VERA_addr_low     = $9F20
@@ -40,12 +40,6 @@ start:
    sta VERA_L0_tilebase
    lda #$11
    sta VERA_dc_video
-   lda #PLOT_WIDTH
-   sta mand_width
-   lda #PLOT_HEIGHT
-   sta mand_height
-   lda #COLOR_DEPTH
-   sta mand_max_it
    stz VERA_ctrl
    lda #($10 | ^VRAM_BITMAP)
    sta VERA_addr_bank   ; stride = 1, bank 0
@@ -58,7 +52,7 @@ start:
 @loop:
    jsr mand_get
    clc
-   cmp #(COLOR_DEPTH-1)
+   cmp #(MAND_MAX_IT-1)
    bne @offset
    lda #0
    bra @set_pixel
@@ -67,20 +61,20 @@ start:
 @set_pixel:
    sta VERA_data0
    inx
-   cpx mand_width
+   cpx #MAND_WIDTH
    bne @loop
    ldx #0
 @blank_loop1:
    stz VERA_data0
    dex
    bne @blank_loop1
-   ldx #(320-256-PLOT_WIDTH)
+   ldx #(320-256-MAND_WIDTH)
 @blank_loop2:
    stz VERA_data0
    dex
    bne @blank_loop2
    iny
-   cpy mand_height
+   cpy #MAND_HEIGHT
    bne @loop
    clc
    tya

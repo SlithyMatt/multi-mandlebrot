@@ -29,6 +29,7 @@ color_codes:
    .byte $9C, $9E, $90        ; purple, yellow, black
 
 start:
+   sei
    lda #CLEAR_SCREEN
    jsr CHROUT
    lda #REVERSE_ON
@@ -36,7 +37,6 @@ start:
    ldx #0
    ldy #0
 @loop:
-   lda mand_max_it
    jsr mand_get
    sta i_result
    txa
@@ -49,7 +49,7 @@ start:
    pla
    tax ; restore X
    inx
-   cpx mand_width
+   cpx #MAND_WIDTH
    bne @loop
    lda #RETURN
    jsr CHROUT
@@ -57,8 +57,9 @@ start:
    jsr CHROUT
    ldx #0
    iny
-   cpy mand_height
+   cpy #MAND_HEIGHT
    bne @loop
    lda #$9A ; restore lt blue text
    jsr CHROUT
+   cli
    rts
