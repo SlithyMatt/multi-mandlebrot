@@ -1,34 +1,40 @@
-.org $3000
-.segment "STARTUP"
-.segment "INIT"
-.segment "ONCE"
-.segment "CODE"
+ORG $2000
 
-   jmp start
+.start
+   jmp main
 
-.include "../6502/mandelbrot.asm"
+INCLUDE "mandelbrot.6502"
 
 ZP_PTR            = $50
 ZP_SCRATCH        = $52
 
-SCREEN_MODE       = $0355
-SCREEN_MAP        = $3000
+CRTC_REG_ADDR     = $FE00
+CRTC_REG_DATA     = $FE01
+VIDEO_ULA_CTRL    = $FE20
+VIDEO_ULA_PAL     = $FE21
+SCREEN_MAP        = $4000
 
-i_result: .byte 0
+.i_result EQUB 0
 
-color_codes:
-   .byte $3F,$03,$0C,$0F   ; white, red, green, yellow
-   .byte $30,$33,$3C       ; blue, magenta, cyan
-   .byte $3F,$03,$0C,$0F   ; white, red, green, yellow
-   .byte $30,$33,$3C,$00   ; blue, magenta, cyan, black
+.color_codes
+   EQUB $3F,$03,$0C,$0F   ; white, red, green, yellow
+   EQUB $30,$33,$3C       ; blue, magenta, cyan
+   EQUB $3F,$03,$0C,$0F   ; white, red, green, yellow
+   EQUB $30,$33,$3C,$00   ; blue, magenta, cyan, black
 
-start:
-   lda #2
-   sta SCREEN_MODE
-   ; clear screen?
+.*main
+{
+   lda #12
+   sta CRTC_REG_ADDR
+   lda #>(SCREEN_MAP/8)
+   sta CRTC_REG_DATA
+   lda #13
+   sta CRTC_REG_ADDR
+   lda #<(SCREEN_MAP/8)
+   sta CRTC_REG_DATA
    ldx #0
    ldy #0
-@loop:
+.loop
    lda mand_max_it
    jsr mand_get
    sta i_result
@@ -98,25 +104,31 @@ start:
    ldx i_result
    lda color_codes,x
    ldy #0
-@pix_loop:
+.pix_loop
    sta (ZP_PTR),y
    iny
    cpy #16
-   bne @pix_loop
+   bne pix_loop
    pla
    tay ; restore Y
    pla
    tax ; restore X
    inx
    cpx mand_width
-   beq @nexty
-   jmp @loop
-@nexty:
+   beq nexty
+   jmp loop
+.nexty
    ldx #0
    iny
    cpy mand_height
-   beq @done
-   jmp @loop
-@done:
+   beq done
+   jmp loop
+.done
    ; place READY prompt?
    rts
+}
+
+.end
+
+SAVE "man", start, end
+PUTBASIC "launch.bas","launch"

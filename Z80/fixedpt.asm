@@ -57,24 +57,24 @@ fp_scratch:
 
 fp_floor_byte: ; A = floor(FP_C)
    ld a,h
-   or a
-   ret p
-   ld a,l
-   or a
+   bit 7,a
+   ret z
+   ld a,0
+   cp l
    ld a,h
    ret z
    dec a
    ret
 
 fp_floor: ; FP_C = floor(FP_C)
-   xor a
    bit 7,h
    jp z,.zerofrac
+   ld a,0
    cp l
    jp z, .zerofrac
    dec h
 .zerofrac:
-   ld l,a
+   ld l,0
    ret
 
    MACRO FP_TCA ; FP_A = FP_C
@@ -94,7 +94,7 @@ fp_floor: ; FP_C = floor(FP_C)
       sbc hl,de
    ENDM
 
-   MACRO FP_ADD ; FP_C = FP_A + FP_B
+   MACRO FP_ADD: ; FP_C = FP_A + FP_B
       ld h,b
       ld l,c
       add hl,de
@@ -124,30 +124,30 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
    ld e,d
    ld d,0
    push bc              ; preserve FP_A
-   ld bc,0
-   push bc
+   push de              ; copy FP_B
+   exx                  ; to DE' register
+   pop de
+   ld hl,0              ; FP_R in HL' register
+   exx
    ld b,16
 .loop1:
-   add hl,hl                ; Shift hi bit of FP_C into REM
-   ex  (sp),hl
-   adc hl,hl
+   add hl,hl            ; Shift hi bit of FP_C into REM
+   exx                  ; switch to alternative registers set
+   adc hl,hl            ; 16-bit left shift
    ld a,l
    sub e                ; trial subtraction
    ld c,a
    ld a,h
    sbc a,d
    jp c,.loop2          ; Did subtraction succeed?
-   ld l,c            ; if yes, save it
+   ld l,c               ; if yes, save it
    ld h,a
-   ex (sp),hl
+   exx                  ; switch to primary registers set
    inc l                ; and record a 1 in the quotient
-   jp .loop3
+   exx                  ; switch to alternative registers set
 .loop2:
-   ex (sp),hl
-.loop3
-   dec b
-   jp nz,.loop1
-   pop de
+   exx                  ; switch to primary registers set
+   djnz .loop1          ; decrement register B and loop while B>0
    pop bc               ; restore FP_A
    pop de               ; restore FP_B
    bit 7,d
@@ -185,48 +185,36 @@ fp_multiply ; FP_C = FP_A * FP_B; FP_R overflow
    sbc hl,de
    FP_TCB               ; FP_B = |FP_B|
 .init_c:
-   ld ixl,0
-   xor a
-   ld h,a
-   ld l,a
-   exx 
-   ld h,a
-   ld l,a
-   ld d,a
-   ld e,a
-   exx
-   ex af,af'
-   ld a,16
+   ld hl,0              ; fp_scratch in register H'
+   exx                  ; fp_remainder in register L'
+   ld hl,0
+   exx                  ; switch to primary registers set
+   ld a,16              ; fp_i in register A
 .loop1:
-   ex af,af'
    srl d
    rr e
-   push bc
-   exx
-   pop bc
    jp nc,.loop2
    add hl,bc
 .loop2:
    rr h
    rr l
-   exx
+   exx                  ; switch to alternative registers set
    rr h
    rr l
-   ex af,af'
+   exx                  ; switch to primary registers set
    dec a
    jp nz,.loop1
-   exx
-   ld h,a
-   ld b,8
+   ld a,l
+   exx                  ; switch to alternative registers set
+   ld e,a               ; we don't values in primary set anymore
+   ld d,0               ; so will use alternative set as primary
+   ld b,8            ; register B as loop counter
 .loop3:
-   srl h
-   rr l
-   exx
+   srl d
+   rr e
    rr h
    rr l
-   exx
-   djnz .loop3
-   exx
+   djnz .loop3       ; decrement and loop
    pop de            ; restore FP_B
    pop bc            ; restore FP_A
    bit 7,d

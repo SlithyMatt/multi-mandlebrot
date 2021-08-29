@@ -5,43 +5,54 @@ FIXEDPT_INC = 1
 
 .ifdef __CX16__
 FP_A = $28
-FP_B = $2A
-FP_C = $2C
-FP_R = $2E
+FP_B = $2B
+FP_C = $2E
+FP_R = $31
 .endif
 
 .ifdef __C64__
-FP_A = $FB
-FP_B = $FD
-FP_C = $26
-FP_R = $28
+FP_A = $22
+FP_B = $25
+FP_C = $28
+FP_R = $FB
 .endif
 
-fp_lda_byte: ; FP_A = A
-   sta FP_A+1
+fp_scratch: .res 3
+
+.macro FP_LDA_WORD word_int
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    stz FP_A
 .else
    lda #0
    sta FP_A
 .endif
-   rts
+   lda word_int
+   sta FP_A+1
+   lda word_int+1
+   sta FP_A+2
+.endmacro
 
-fp_ldb_byte: ; FP_B = A
-   sta FP_B+1
+
+.macro FP_LDA_WORD word_int
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    stz FP_B
 .else
    lda #0
    sta FP_B
 .endif
-   rts
+   lda word_int
+   sta FP_B+1
+   lda word_int+1
+   sta FP_B+2
+.endmacro
 
 .macro FP_LDA addr
    lda addr
    sta FP_A
    lda addr+1
    sta FP_A+1
+   lda addr+2
+   sta FP_A+2
 .endmacro
 
 .macro FP_LDB addr
@@ -49,6 +60,8 @@ fp_ldb_byte: ; FP_B = A
    sta FP_B
    lda addr+1
    sta FP_B+1
+   lda addr+2
+   sta FP_B+2
 .endmacro
 
 .macro FP_STC addr
@@ -56,35 +69,23 @@ fp_ldb_byte: ; FP_B = A
    sta addr
    lda FP_C+1
    sta addr+1
+   lda FP_C+2
+   sta addr+2
 .endmacro
 
-fp_floor_byte: ; A = floor(FP_C)
-   lda FP_C+1
-   and #$80
-   beq @return
-   lda FP_C
-   cmp #0
-   bne @decc
-   lda FP_C+1
-   rts
-@decc:
-lda FP_C
-.if (.cpu .bitand ::CPU_ISET_65SC02)
-   dec
-.else
-   sec
-   sbc #1
-.endif
-@return:
-   rts
-
 fp_floor: ; FP_C = floor(FP_C)
-   bit FP_C+1
+   bit FP_C+2
    bpl @zerofrac
    lda FP_C
    cmp #0
    beq @zerofrac
-   dec FP_C+1
+   lda FP_C+1
+   sec
+   sbc #1
+   sta FP_C+1
+   lda FP_C+2
+   sbc #0
+   sta FP_C+2
 @zerofrac:
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    stz FP_C
@@ -99,6 +100,8 @@ fp_floor: ; FP_C = floor(FP_C)
    sta FP_A
    lda FP_C+1
    sta FP_A+1
+   lda FP_C+2
+   sta FP_A+2
 .endmacro
 
 .macro FP_TCB ; FP_B = FP_C
@@ -106,6 +109,8 @@ fp_floor: ; FP_C = floor(FP_C)
    sta FP_B
    lda FP_C+1
    sta FP_B+1
+   lda FP_C+2
+   sta FP_B+2
 .endmacro
 
 fp_subtract: ; FP_C = FP_A - FP_B
@@ -116,6 +121,9 @@ fp_subtract: ; FP_C = FP_A - FP_B
    lda FP_A+1
    sbc FP_B+1
    sta FP_C+1
+   lda FP_A+2
+   sbc FP_B+2
+   sta FP_C+2
    rts
 
 fp_add: ; FP_C = FP_A + FP_B
@@ -126,6 +134,9 @@ fp_add: ; FP_C = FP_A + FP_B
    lda FP_A+1
    adc FP_B+1
    sta FP_C+1
+   lda FP_A+2
+   adc FP_B+2
+   sta FP_C+2
    rts
 
 fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
@@ -141,13 +152,17 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
    lda FP_B
    pha
    lda FP_B+1
+   pha
+   lda FP_B+2
    pha ; preserve original B on stack
-   bit FP_A+1
+   bit FP_A+2
    bmi @abs_a
    lda FP_A
    sta FP_C
    lda FP_A+1
    sta FP_C+1
+   lda FP_A+2
+   sta FP_C+2
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    bra @check_sign_b
 .else
