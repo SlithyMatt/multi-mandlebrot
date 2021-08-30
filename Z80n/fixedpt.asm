@@ -168,131 +168,48 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
    pop bc
    ret
 
-fp_mult_s ; FP_C = FP_A * FP_B; FP_R overflow
-   push bc              ; preserve FP_A
-   push de              ; preserve FP_B
-   bit 7,b
-   jp z,.check_sign_b
-   ld hl,0
-   or a
-   sbc hl,bc
-   FP_TCA               ; FP_A = |FP_A|
-.check_sign_b:
-   bit 7,d
-   jp z,.init_c
-   ld hl,0
-   or a
-   sbc hl,de
-   FP_TCB               ; FP_B = |FP_B|
-.init_c:
-   ld hl,0              ; fp_scratch in register H'
-   exx                  ; fp_remainder in register L'
-   ld hl,0
-   exx                  ; switch to primary registers set
-   ld a,16              ; fp_i in register A
-.loop1:
-   srl d
-   rr e
-   jp nc,.loop2
-   add hl,bc
-.loop2:
-   rr h
-   rr l
-   exx                  ; switch to alternative registers set
-   rr h
-   rr l
-   exx                  ; switch to primary registers set
-   dec a
-   jp nz,.loop1
-   ld a,l
-   exx                  ; switch to alternative registers set
-   ld e,a               ; we don't values in primary set anymore
-   ld d,0               ; so will use alternative set as primary
-   ld b,8            ; register B as loop counter
-.loop3:
-   srl d
-   rr e
-   rr h
-   rr l
-   djnz .loop3       ; decrement and loop
-   pop de            ; restore FP_B
-   pop bc            ; restore FP_A
-   bit 7,d
-   jp nz,.check_cancel
-   bit 7,b
-   ret z
-   jp .negative
-.check_cancel:
-   bit 7,b
-   ret nz
-.negative:
-   push bc           ; preserve FP_A
-   ld b,h
-   ld c,l
-   ld hl,0
-   or a
-   sbc hl,bc
-   pop bc            ; restore FP_A
-   ret
-
-fp_multiply: ; simple, not fast
-  call smult32
-  ld a,h
-  ld (fp_remainder),a
-  ld h,l
-  xor a
-  ld (fp_remainder+1),a
-  exx
-  ld a,h
-  exx
-  ld l,a
-  ret
-
-smult32: ; signed get bc*de in hl and hl'
-  call umult32
-  bit 7,b
-  jp z,.part2
-  sub hl,de
-.part2:
-  bit 7,d
-  ret z
-  sub hl,bc
-  ret
-
-umult32: ; unsigned get bc*de in hl and hl'
+fp_multiply: ; slightly optimized version using hardware multiply
   push de
   ld (fp_scratch),de
   ld d,c
-  mul d,e ; c*e
-  ld a,e
+  mul d,e
+  ld h,$00
   ld l,d
-  ld h,$00
-  exx
-  ld l,a
-  ld h,$00
-  exx
   ld a,(fp_scratch)
-  ld e,a
   ld d,b
-  mul d,e ; b*e
-  add hl,de ; can't overflow
-  ld a,(fp_scratch+1)
   ld e,a
+  mul d,e
+  add hl,de
+  ld a,(fp_scratch+1)
   ld d,c
-  mul d,e ; c*d
+  ld e,a
+  mul d,e
   add hl,de
   ld a,l
+  ld (fp_scratch),a
   ld l,h
-  exx
-  ld h,a
-  exx
   ld a,$00
   adc a,$00
   ld h,a
   ld a,(fp_scratch+1)
-  ld e,a
   ld d,b
-  mul d,e ; c*d
+  ld e,a
+  mul d,e
   add hl,de
   pop de
+  bit 7,d
+  jp z,.s1
+  sub hl,bc
+.s1:
+  bit 7,b
+  jp z,.s2
+  sub hl,de
+.s2:
+  ld a,h
+  ld (fp_remainder),a
+  xor a
+  ld (fp_remainder+1),a
+  ld a,(fp_scratch)
+  ld h,l
+  ld l,a
   ret
