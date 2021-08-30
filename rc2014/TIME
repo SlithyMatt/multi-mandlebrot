@@ -1,3 +1,4 @@
 RC2014
-	 8MHz	6s
-	20MHz	2s
+	CPU clock	BASIC	ASM
+	20MHz		0:24	0:02
+	7.3728MHz	1:05	0:06
