@@ -1,0 +1,20 @@
+
+This is version of Mandelbrot for CP/M
+Code should work on any Z80 hardware.
+
+Tested on
+* RC2014 clone (7.3MHz and 20MHz system clock, 115200 baud terminal)
+* Udo Munk Z80pack CP/M cpmsim (8MHz and 20MHz) with same results
+
+Code compiled using pasmo assembler.
+(fidedpt.asm, mandelbrot.asm required patching)
+
+TODO
+* Adopt code to native compilers of the era
+* TMS9918A video adapter support
+
+
+References:
+* RC2014 modular platform -- http://rc2014.co.uk/
+* Pasmo cross assembler   -- http://pasmo.speccy.org/
+* Udo Munk Z80pack        -- https://github.com/udo-munk/z80pack

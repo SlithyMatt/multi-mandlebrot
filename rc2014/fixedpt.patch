@@ -1,0 +1,114 @@
+--- ../Z80/fixedpt.asm	2021-08-28 19:40:09.243249486 +0200
++++ fixedpt.asm	2021-08-28 22:58:44.855908311 +0200
+@@ -13,45 +13,45 @@
+ fp_scratch:
+    dw 0
+ 
+-   MACRO FP_LDA_BYTE source
++FP_LDA_BYTE:	MACRO source
+       ld b,source
+       ld c,0
+    ENDM
+ 
+-   MACRO FP_LDB_BYTE source
++FP_LDB_BYTE:	MACRO source
+       ld d,source
+       ld e,0
+    ENDM
+ 
+-   MACRO FP_LDA_BYTE_IND address
++FP_LDA_BYTE_IND:	MACRO address
+       ld a,(address)
+       ld b,a
+       ld c,0
+    ENDM
+ 
+-   MACRO FP_LDB_BYTE_IND address
++FP_LDB_BYTE_IND:	MACRO address
+       ld a,(address)
+       ld d,a
+       ld e,0
+    ENDM
+ 
+-   MACRO FP_LDA source
++FP_LDA:	MACRO source
+       ld bc,source
+    ENDM
+ 
+-   MACRO FP_LDB source
++FP_LDB:	MACRO source
+       ld de,source
+    ENDM
+ 
+-   MACRO FP_LDA_IND address
++FP_LDA_IND:	MACRO address
+       ld bc,(address)
+    ENDM
+ 
+-   MACRO FP_LDB_IND address
++FP_LDB_IND:	MACRO address
+       ld de,(address)
+    ENDM
+ 
+-   MACRO FP_STC dest
++FP_STC:	MACRO dest
+       ld (dest),hl
+    ENDM
+ 
+@@ -77,30 +77,30 @@
+    ld l,0
+    ret
+ 
+-   MACRO FP_TCA ; FP_A = FP_C
++FP_TCA:	MACRO ; FP_A = FP_C
+       ld b,h
+       ld c,l
+    ENDM
+ 
+-   MACRO FP_TCB ; FP_B = FP_C
++FP_TCB:	MACRO ; FP_B = FP_C
+       ld d,h
+       ld e,l
+    ENDM
+ 
+-   MACRO FP_SUBTRACT ; FP_C = FP_A - FP_B
++FP_SUBTRACT:	MACRO ; FP_C = FP_A - FP_B
+       ld h,b
+       ld l,c
+       or a
+       sbc hl,de
+    ENDM
+ 
+-   MACRO FP_ADD: ; FP_C = FP_A + FP_B
++FP_ADD:	MACRO ; FP_C = FP_A + FP_B
+       ld h,b
+       ld l,c
+       add hl,de
+    ENDM
+ 
+-fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
++fp_divide: REPT 1 ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
+    push de              ; preserve FP_B
+    bit 7,b
+    jp nz,.abs_a         ; get |FP_A| if negative
+@@ -167,8 +167,14 @@
+    sbc hl,bc
+    pop bc
+    ret
++ENDM
+ 
+-fp_multiply ; FP_C = FP_A * FP_B; FP_R overflow
++fp_multiply: REPT 1 ; FP_C = FP_A * FP_B; FP_R overflow
++  LOCAL .check_sign_b
++  LOCAL .loop1
++  LOCAL .loop2
++  LOCAL .check_cancel
++  LOCAL .negative
+    push bc              ; preserve FP_A
+    push de              ; preserve FP_B
+    bit 7,b
+@@ -234,3 +240,4 @@
+    sbc hl,bc
+    pop bc            ; restore FP_A
+    ret
++ENDM
