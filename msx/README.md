@@ -34,11 +34,16 @@ isn't needed.
 
 - *National CF-3300*
 
-    openmsx -machine National_CF-3300 -diska ./msx/
+```
+   openmsx -machine National_CF-3300 -diska ./msx/
+```
 
 - *Philips VG-8000* + *Philips NMS-1200*
 
+```
     openmsx -machine Philips_VG_8000 -ext Philips_NMS_1200 -diska ./msx/
+
+```
 
 After start, type `files` command to ensure that virtual floppy mounted correctly.
 
