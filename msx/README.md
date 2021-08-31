@@ -27,6 +27,10 @@ There were several hundred MSX-compatible models, **openMSX** can emulate almost
 them. Rom images is not included, so must be found separately. A model with floppy is
 desirable or a floppy extension must be activated. Such models as *National CF-3300* and
 *Philips VG-8000* with *Philips NMS-1200* floppy controller has been tested and work fine.
+
+Also tested *Turbo-R* machine *Panasonic FS-A1GT* with modified R800 CPU at 8mHz. Works
+fine and awesome fast. Can be on par with modern *X16* and *ZX-Next*.
+
 **OpenMSX** can mount a host directory as s virtual floppy, so fiddling with image files
 isn't needed.
 
@@ -42,7 +46,12 @@ isn't needed.
 
 ```
     openmsx -machine Philips_VG_8000 -ext Philips_NMS_1200 -diska ./msx/
+```
 
+- *Panasonic FS-A1GT*
+
+```
+    openmsx -machine Panasonic_FS-A1GT -diska ./msx/
 ```
 
 After start, type `files` command to ensure that virtual floppy mounted correctly.
