@@ -18,3 +18,35 @@ with appropriate code is put to screen memory. Because foreground and background
 colors are the same, characters are seen as color squares.
 
 64x44 variant uses screen mode 2 in a straightforward way.
+
+Running
+-------
+
+Is is highly recommended free and open sourced **openMSX** emulator to run these programs.
+There were several hundred MSX-compatible models, **openMSX** can emulate almost every of
+them. Rom images is not included, so must be found separately. A model with floppy is
+desirable or a floppy extension must be activated. Such models as *National CF-3300* and
+*Philips VG-8000* with *Philips NMS-1200* floppy controller has been tested and work fine.
+**OpenMSX** can mount a host directory as s virtual floppy, so fiddling with image files
+isn't needed.
+
+### Examples to run **openMSX**
+
+- *National CF-3300*
+
+    openmsx -machine National_CF-3300 -diska ./msx/
+
+- *Philips VG-8000* + *Philips NMS-1200*
+
+    openmsx -machine Philips_VG_8000 -ext Philips_NMS_1200 -diska ./msx/
+
+After start, type `files` command to ensure that virtual floppy mounted correctly.
+
+To load basic program, type `load"msx-mand.bas"` then `run`.
+
+To load binary program type `bload"mand.bin",r` or `bload"mand2.bin",r`, they will run
+automatically.
+
+Other emulators need image file for emulated floppy drive. It can be created using
+*msxdiskimage* utility can be downloaded from
+[here](https://www.msx.org/downloads/dsk-and-xsa-image-utility-linux-and-windows)
