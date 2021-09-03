@@ -10,5 +10,5 @@ Rows 10-29:
 00000000xxxxxxxxxxxxxxxxxxxxxxxx00000000------------------------
 
 tile index = 1 + INT(x / 16) + 24*INT(y / 16)
-tile map address = $00510 + 2*(((index-1) - 24*INT((index-1) / 24)) + 128*INT((index-1) / 24))
+tile map address = $00510 + 2*(((index-1) - 24*INT((index-1) / 24)) + 64*INT((index-1) / 24))
 tile pixel address = $01000 + index*256 + (x AND 15) + 16*(y AND 15)
