@@ -175,7 +175,10 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
    sta FP_C
    lda #0
    sbc FP_A+1
-   sta FP_C+1 ; C = |A|
+   sta FP_C+1
+   lda #0
+   sbc FP_A+2
+   sta FP_C+2 ; C = |A|
 @check_sign_b:
    bit FP_B+1
    bpl @shift_b
@@ -186,49 +189,65 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
    lda #0
    sbc FP_B+1
    sta FP_B+1
+   lda #0
+   sbc FP_B+2
+   sta FP_B+2
 @shift_b:
    lda FP_B+1
    sta FP_B
-   lda #0
+   lda FP_B+2
    sta FP_B+1
+   lda #0
+   sta FP_B+2
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    stz FP_R
    stz FP_R+1
+   stz FP_R+2
 .else
    lda #0
    sta FP_R
    sta FP_R+1
+   sta FP_R+2
 .endif
-   ldx #16     ;There are 16 bits in C
+   ldx #24     ;There are 24 bits in C
 @loop1:
    asl FP_C    ;Shift hi bit of C into REM
    rol FP_C+1  ;(vacating the lo bit, which will be used for the quotient)
+   rol FP_C+2
    rol FP_R
    rol FP_R+1
+   rol FP_R+2
    lda FP_R
    sec         ;Trial subtraction
    sbc FP_B
    tay
    lda FP_R+1
    sbc FP_B+1
+   sta fp_scratch
+   lda FP_R+2
+   sbc FP_B+2
    bcc @loop2  ;Did subtraction succeed?
-   sta FP_R+1   ;If yes, save it
+   sta FP_R+2   ;If yes, save it
+   lda fp_scratch
+   sta FP_R+1
    sty FP_R
    inc FP_C    ;and record a 1 in the quotient
 @loop2:
    dex
    bne @loop1
    pla
+   sta FP_B+2
+   pla
    sta FP_B+1
    pla
    sta FP_B
-   bit FP_B+1
+   bit FP_B+2
    bmi @check_cancel
-   bit FP_A+1
+   bit FP_A+2
    bmi @negative
    jmp @return
 @check_cancel:
-   bit FP_A+1
+   bit FP_A+2
    bmi @return
 @negative:
    lda #0
@@ -238,6 +257,9 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
    lda #0
    sbc FP_C+1
    sta FP_C+1
+   lda #0
+   sbc FP_C+2
+   sta FP_C+2
 @return:
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    ply
@@ -265,11 +287,15 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    pha
    lda FP_A+1
    pha
+   lda FP_A+2
+   pha
    lda FP_B
    pha
    lda FP_B+1
    pha
-   bit FP_A+1
+   lda FP_B+2
+   pha
+   bit FP_A+2
    bpl @check_sign_b
    lda #0
    sec
@@ -277,9 +303,12 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    sta FP_A
    lda #0
    sbc FP_A+1
-   sta FP_A+1 ; A = |A|
+   sta FP_A+1
+   lda #0
+   sbc FP_A+2
+   sta FP_A+2 ; A = |A|
 @check_sign_b:
-   bit FP_B+1
+   bit FP_B+2
    bpl @init_c
    lda #0
    sec
@@ -287,56 +316,73 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    sta FP_B
    lda #0
    sbc FP_B+1
-   sta FP_B+1 ; B = |B|
+   sta FP_B+1
+   lda #0
+   sbc FP_B+2
+   sta FP_B+2 ; B = |B|
 @init_c:
    lda #0
    sta FP_R
+   sta FP_R+1
+   sta FP_R+2
    sta FP_C
    sta FP_C+1
+   sta FP_C+2
    ldx #16
 @loop1:
-   lsr FP_B+1
+   lsr FP_B+2
+   ror FP_B+1
    ror FP_B
    bcc @loop2
-   tay
    clc
    lda FP_A
    adc FP_R
    sta FP_R
-   tya
+   lda FP_R+1
    adc FP_A+1
+   sta FP_R+1
+   lda FP_R+2
+   adc FP_A+2
+   sta FP_R+2
 @loop2:
-   ror
+   ror FP_R+2
+   ror FP_R+1
    ror FP_R
+   ror FP_C+2
    ror FP_C+1
    ror FP_C
    dex
    bne @loop1
-   sta FP_R+1
    ldx #8
 @loop3:
-   lsr FP_R+1
+   lsr FP_R+2
+   ror FP_R+1
    ror FP_R
+   ror FP_C+2
    ror FP_C+1
    ror FP_C
    dex
    bne @loop3
    ; restore A and B
    pla
+   sta FP_B+2
+   pla
    sta FP_B+1
    pla
    sta FP_B
    pla
+   sta FP_A+2
+   pla
    sta FP_A+1
    pla
    sta FP_A
-   bit FP_B+1
+   bit FP_B+2
    bmi @check_cancel
-   bit FP_A+1
+   bit FP_A+2
    bmi @negative
    jmp @return
 @check_cancel:
-   bit FP_A+1
+   bit FP_A+2
    bmi @return
 @negative:
    lda #0
@@ -346,6 +392,9 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    lda #0
    sbc FP_C+1
    sta FP_C+1
+   lda #0
+   sbc FP_C+2
+   sta FP_C+2
 @return:
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    ply
