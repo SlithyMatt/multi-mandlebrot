@@ -1,0 +1,14 @@
+384x320 --> 24x20
+
+64x32 tilemap: $00000-$01000
+481 tiles: $01000-$1F0FF
+
+Rows 0-9, 30-39:
+0000000000000000000000000000000000000000------------------------
+
+Rows 10-29:
+00000000xxxxxxxxxxxxxxxxxxxxxxxx00000000------------------------
+
+tile index = 1 + INT(x / 16) + 24*INT(y / 16)
+tile map address = $00510 + 2*(((index-1) - 24*INT((index-1) / 24)) + 128*INT((index-1) / 24))
+tile pixel address = $01000 + index*256 + (x AND 15) + 16*(y AND 15)
