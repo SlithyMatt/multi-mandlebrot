@@ -33,7 +33,7 @@ fp_scratch: .res 3
 .endmacro
 
 
-.macro FP_LDA_WORD word_int
+.macro FP_LDB_WORD word_int
 .if (.cpu .bitand ::CPU_ISET_65SC02)
    stz FP_B
 .else
@@ -61,6 +61,50 @@ fp_scratch: .res 3
    lda addr+1
    sta FP_B+1
    lda addr+2
+   sta FP_B+2
+.endmacro
+
+.macro FP_LDA_IMM val
+   lda #<val
+   sta FP_A
+   lda #>val
+   sta FP_A+1
+   lda #^val
+   sta FP_A+2
+.endmacro
+
+.macro FP_LDB_IMM val
+   lda #<val
+   sta FP_B
+   lda #>val
+   sta FP_B+1
+   lda #^val
+   sta FP_B+2
+.endmacro
+
+.macro FP_LDA_IMM_INT val
+.if (.cpu .bitand ::CPU_ISET_65SC02)
+   stz FP_A
+.else
+   lda #0
+   sta FP_A
+.endif
+   lda #<val
+   sta FP_A+1
+   lda #>val
+   sta FP_A+2
+.endmacro
+
+.macro FP_LDB_IMM_INT val
+.if (.cpu .bitand ::CPU_ISET_65SC02)
+   stz FP_B
+.else
+   lda #0
+   sta FP_B
+.endif
+   lda #<val
+   sta FP_B+1
+   lda #>val
    sta FP_B+2
 .endmacro
 

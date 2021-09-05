@@ -99,10 +99,9 @@ mand_get:   ; Input:
    add hl,de                  ; HL =  X^2 - Y^2 + X0
    push hl                    ; Xtemp = HL
    ld bc,(mand_x)             ; BC = X
-   ld de,$200                 ; DE = 2.0
-   call fp_multiply           ; HL = 2*X
-   ex de,hl                   ; DE = 2*X
-   ld bc,(mand_y)             ; BC = Y
+   sla c
+   rl b                       ; BC = 2*X
+   ld de,(mand_y)             ; DE = Y
    call fp_multiply           ; HL = 2*X*Y
    ld de,(mand_y0)            ; DE = Y0
    add hl,de                  ; HL = 2*X*Y + Y0
