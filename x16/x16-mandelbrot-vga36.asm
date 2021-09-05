@@ -6,6 +6,8 @@
 
    jmp start
 
+MAND_YMIN = $FFFE8A ; -1.4609375
+MAND_YMAX = $0002EB ; 2.91796875
 MAND_WIDTH = 36
 MAND_HEIGHT = 30
 MAND_MAX_IT = 48
@@ -57,7 +59,10 @@ start:
    lda #0
    bra @set_pixel
 @offset:
-   adc #32
+   adc #80
+   cmp #128
+   bne @set_pixel
+   lda #0
 @set_pixel:
    sta VERA_data0
    inx
