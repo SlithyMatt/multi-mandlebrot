@@ -42,7 +42,7 @@ basic:
 @line40:
         !word @last, 40         ; line 40
         !byte $fe, $41, $91     ; cursor on
-        !text ",35,1:"
+        !text ",65,2:"
         !byte $99               ; print
         !text "et:"             ; et:
         !byte $fe, $41, $91     ; cursor on
@@ -95,11 +95,18 @@ init:
 @loop:
         jsr mand_get            ; no need to store A, because result is also in mand_res
         txa
+        clc
+        rol
         taz                     ; move x to z, to use it as our base-page indirect offset
         lda #REVERSE_SPACE
         sta [mand_scrn],z       ; reverse space to the screen
+        inz
+        sta [mand_scrn],z       ; double width
+        dez
         lda mand_res
         sta [mand_colr],z       ; iterations as colour index to to cram
+        inz
+        sta [mand_colr],z       ; double width
         ldz #0                  ; restore z to 0
         inx
         cpx #MAND_WIDTH
