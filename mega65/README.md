@@ -12,7 +12,7 @@ recently patched original rom (920220 or higher).
 
 ## Basic Version
 
-The BASIC65 version is nearly the same as the C64 version. It uses interger variables for
+The BASIC65 version is nearly the same as the C64 version. It uses integer (%) variables for
 the loops and 24bit POKEs to write to memory (needed for the colour ram located at $1f800).
 
 In addition the RTC of the MEGA65 is used to time the whole mandelbrot loop, so in the end
