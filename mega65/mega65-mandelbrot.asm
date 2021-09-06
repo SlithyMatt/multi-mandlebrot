@@ -96,8 +96,8 @@ init:
         jsr mand_get            ; no need to store A, because result is also in mand_res
         txa
         clc
-        rol
-        taz                     ; move x to z, to use it as our base-page indirect offset
+        rol                     
+        taz                     ; z = x*2
         lda #REVERSE_SPACE
         sta [mand_scrn],z       ; reverse space to the screen
         inz
