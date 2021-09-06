@@ -71,10 +71,10 @@ init:
 ;
 ; MANDELBROT LOOP
 ;
-        ldz #0                  ; 4502 has z register, we need it to be zero
+        sei                     ; we don't need no interruptions
+        ldz #0                  ; 45ce02 has z register, we need it to be zero
         lda #base_page
-        tab                     ; set base-page to FP_BP
-        sei
+        tab                     ; move base-page so we can use base page addresses for everything
         lda #0
         sta mand_scrn+3
         sta mand_colr+3
@@ -89,145 +89,44 @@ init:
         lda #>M65_COLRAM
         sta mand_colr+1
         lda #<M65_COLRAM
-        sta mand_colr
+        sta mand_colr           ; setup of the two 32bit base-page pointers to screen and colour ram
         ldx #0
-        ldy #0
+        ldy #0                  ; loop counters
 @loop:
         jsr mand_get            ; no need to store A, because result is also in mand_res
         txa
-        taz
+        taz                     ; move x to z, to use it as our base-page indirect offset
         lda #REVERSE_SPACE
-        sta [mand_scrn],z
+        sta [mand_scrn],z       ; reverse space to the screen
         lda mand_res
-        sta [mand_colr],z
-        ldz #0
+        sta [mand_colr],z       ; iterations as colour index to to cram
+        ldz #0                  ; restore z to 0
         inx
         cpx #MAND_WIDTH
-        bne @loop
+        bne @loop               ; next x
         ldx #0
-        clc
-        ; next line
+        clc                     ; move mand_scrn bp pointer to the next line
         lda mand_scrn
         adc #80
         sta mand_scrn
         lda mand_scrn+1
         adc #0
-        sta mand_scrn+1
-        clc
+        sta mand_scrn+1         ; mand_scrn += 80
+        clc                     ; move mand_colr pointer to the next line
         lda mand_colr
         adc #80
         sta mand_colr
         lda mand_colr+1
         adc #0
-        sta mand_colr+1
+        sta mand_colr+1         ; mand_colr += 80
         iny
         cpy #MAND_HEIGHT
-        bne @loop
+        bne @loop               ; next y
         clc
         lda #0
-        tab                     ; reset base-page to 0
-        cli
-        rts
-
-
-
-        sty FP_A
-        stz FP_A+1
-        asl FP_A
-        rol FP_A+1
-        asl FP_A
-        rol FP_A+1
-        asl FP_A
-        rol FP_A+1
-        asl FP_A
-        rol FP_A+1
-        lda FP_A+1
-        sta FP_B+1
-        lda FP_A
-        sta FP_B                ; FP_B = Y*16
-        asl FP_A
-        rol FP_A+1
-        asl FP_A
-        rol FP_A+1
-        asl FP_A
-        rol FP_A+1              ; FP_A = Y*64
-        clc
-        adc FP_A
-        sta FP_A
-        lda FP_A+1
-        adc FP_B+1
-        sta FP_A+1              ; FP_A = Y*80
-        ;lda FP_A no effect?
-        txa
-        adc FP_A
-        sta FP_A
-        sta FP_B
-        lda FP_A+1
-        adc #0
-        sta FP_A+1              ; FP_A = Y*80+X
-        sta FP_B+1              ; FP_B = Y*80+X
-        lda FP_A
-        adc #<M65_SCREEN
-        sta FP_A
-        lda FP_A+1
-        adc #>M65_SCREEN
-        sta FP_A+1
-        phx
-        ldx #0
-        lda mand_res
-        adc #$30
-        sta (FP_A,x)         ; place reverse space character code
-;        lda FP_B
-;        adc #<M65_COLRAM
-;        sta FP_B
-;        lda FP_B+1
-;        adc #>M65_COLRAM
-;        sta FP_B+1
-;        lda mand_res
-;        sta (FP_B,x)         ; set color index
-        plx
-        inx
-        cpx #MAND_WIDTH
-;        bne @loop
-        ldx #0
-        iny
-        cpy #MAND_HEIGHT
-;        bne @loop
-        clc
-        lda #0
-        tab                     ; reset base-page to 0
-        cli
-        rts
-
-;
-; TEST - fill screen with A
-; to see if TI works...
-;
-        lda #$30
-        tab                     ;  set base-page to $30xx
-        lda #<M65_SCREEN
-        sta $74
-        lda #>M65_SCREEN
-        sta $75
-        lda #1
-        ldx #7
---      ldy #0
--       sta ($74),y
-        dey
-        bne -
-        ldy $75
-        iny
-        sty $75
-        dex
-        bne --
-        ldy #208
--       sta ($74),y
-        dey
-        bne -
-        sta ($74),y
-        lda #0                  ; set base-page to $00xx
-        tab
-        rts
+        tab                     ; restore base-page to 0
+        cli                     ; allow interrupts
+        rts                     ; return
 
 dma_cls:
         ; two dma command blocks chained
