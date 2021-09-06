@@ -19,10 +19,10 @@
 190 x = xt
 200 next i%
 210 dx% = px%+px%
-220 poke $1f800+scr%+dx%, i%-1
-230 poke $1f801+scr%+dx%, i%-1
-240 poke $00800+col%+dx%, 160
-250 poke $00801+col%+dx%, 160
+220 poke $1f800+col%+dx%, i%-1
+230 poke $1f801+col%+dx%, i%-1
+240 poke $00800+scr%+dx%, 160
+250 poke $00801+scr%+dx%, 160
 260 next px%
 270 scr%=scr%+wdt%
 280 col%=col%+wdt%
