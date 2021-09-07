@@ -5,6 +5,7 @@ mand_get:   ; Input:
             ; output also in mand_res base page
         phx
         phy
+        ldz #0                  ; z needs to be zero for all the stz
         txa
         +FP_LDA_BYTE            ; A = X coordinate
         +FP_LDB_IMM MAND_XMAX   ; B = max scaled X

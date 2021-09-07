@@ -72,7 +72,6 @@ init:
 ; MANDELBROT LOOP
 ;
         sei                     ; we don't need no interruptions
-        ldz #0                  ; 45ce02 has z register, we need it to be zero
         lda #base_page
         tab                     ; move base-page so we can use base page addresses for everything
         lda #0
@@ -107,7 +106,6 @@ init:
         sta [mand_colr],z       ; iterations as colour index to to cram
         inz
         sta [mand_colr],z       ; double width
-        ldz #0                  ; restore z to 0
         inx
         cpx #MAND_WIDTH
         bne @loop               ; next x
