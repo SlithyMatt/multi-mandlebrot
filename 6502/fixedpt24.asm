@@ -397,7 +397,7 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    ror FP_C
    dex
    bne @loop1
-   ldx #8
+   ldx #16
 @loop3:
    lsr FP_R+2
    ror FP_R+1
