@@ -83,6 +83,10 @@ mand_get:   ; Input:
    FP_LDA mand_x2    ; A = X^2
    FP_TCB            ; B = Y^2
    jsr fp_add        ; C = X^2+Y^2
+   lda FP_C+2
+   beq @check4
+   jmp @dec_i
+@check4:
    lda FP_C+1
    sec
    sbc #4
