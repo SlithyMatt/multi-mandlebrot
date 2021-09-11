@@ -117,6 +117,8 @@ mand_get:   ; Input:
    sta mand_x
    lda mand_xtemp+1
    sta mand_x+1      ; X = Xtemp
+   lda mand_xtemp+2
+   sta mand_x+2
    inx
    cpx #MAND_MAX_IT
    beq @dec_i

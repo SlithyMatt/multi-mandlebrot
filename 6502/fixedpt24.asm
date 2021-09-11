@@ -224,7 +224,7 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
    sbc FP_A+2
    sta FP_C+2 ; C = |A|
 @check_sign_b:
-   bit FP_B+1
+   bit FP_B+2
    bpl @shift_b
    lda #0
    sec
