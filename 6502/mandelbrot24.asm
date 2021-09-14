@@ -34,17 +34,17 @@ mand_xtemp:    .dword 0
 mand_get:   ; Input:
             ;  mand_x,mand_y - bitmap coordinates
             ; Output: A - # iterations executed (0 to mand_max_it-1)
-   FP_LDA_WORD mand_x         ; A = X coordinate
+   FP_LDA mand_x              ; A = X coordinate
    FP_LDB_IMM MAND_XMAX       ; B = max scaled X - min scaled X
    jsr fp_multiply            ; C = A*B
    FP_TCA                     ; A = C (X*Xmax)
    FP_LDB_IMM_INT MAND_WIDTH  ; B = width
    jsr fp_divide              ; C = A/B
    FP_TCA                     ; A = C (scaled X with zero min)
-   FP_LDB_IMM_INT MAND_XMIN   ; B = min scaled X
+   FP_LDB_IMM MAND_XMIN       ; B = min scaled X
    jsr fp_add                 ; C = A+B (scaled X)
    FP_STC mand_x0             ; x0 = C
-   FP_LDA_WORD mand_y         ; A = Y coordinate
+   FP_LDA mand_y              ; A = Y coordinate
    FP_LDB_IMM MAND_YMAX       ; B = max scaled Y - min scaled Y
    jsr fp_multiply            ; C = A*B
    FP_TCA                     ; A = C (Y*Ymax)
@@ -83,6 +83,10 @@ mand_get:   ; Input:
    FP_LDA mand_x2    ; A = X^2
    FP_TCB            ; B = Y^2
    jsr fp_add        ; C = X^2+Y^2
+   lda FP_C+2
+   beq @check4
+   jmp @dec_i
+@check4:
    lda FP_C+1
    sec
    sbc #4
@@ -113,6 +117,8 @@ mand_get:   ; Input:
    sta mand_x
    lda mand_xtemp+1
    sta mand_x+1      ; X = Xtemp
+   lda mand_xtemp+2
+   sta mand_x+2
    inx
    cpx #MAND_MAX_IT
    beq @dec_i

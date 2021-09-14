@@ -47,14 +47,16 @@ start:
    stz loopy
    stz loopy+1
 @loop:
+   stz mand_x
    lda loopx
-   sta mand_x
-   lda loopx+1
    sta mand_x+1
+   lda loopx+1
+   sta mand_x+2
+   stz mand_y
    lda loopy
-   sta mand_y
-   lda loopy+1
    sta mand_y+1
+   lda loopy+1
+   sta mand_y+2
    jsr mand_get
    adc #80
    cmp #128
