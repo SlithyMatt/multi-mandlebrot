@@ -60,6 +60,9 @@ init:
         ldy #0
         ldz #%10110000
         map                     ; set memory map to give us IO and some ROM (right?)
+        lda DMA_CONTROL
+        ora #1
+        sta DMA_CONTROL         ; enable F018B Style DMA
         lda #0
         sta DMA_ADDRBANK
         lda #>dma_cls
@@ -135,22 +138,22 @@ init:
 
 dma_cls:
         ; two dma command blocks chained
-        ; clear screen with space
-        !byte DMA_FILL|DMA_CHAIN
-        !word 80*25
-        !word $0020     ; fill value SPACE
-        !byte $00       ; src bank (ignored)
-        !word M65_SCREEN
-        !byte M65_SCREEN_BANK
-        !byte $00       ; cmd msb (unused)
-        !word $0000     ; modulo (ignored)
         ; set color to white
-        !byte DMA_FILL
+        !byte DMA_FILL|DMA_CHAIN
         !word 80*25
         !word $0001     ; fill value WHITE
         !byte $00       ; src bank (ignore)
         !word M65_COLRAM
         !byte M65_COLRAM_BANK
+        !byte $00       ; cmd msb (unused)
+        !word $0000     ; modulo (ignored)
+        ; clear screen with space
+        !byte DMA_FILL
+        !word 80*25
+        !word $0020     ; fill value SPACE
+        !byte $00       ; src bank (ignored)
+        !word M65_SCREEN
+        !byte M65_SCREEN_BANK
         !byte $00       ; cmd msb (unused)
         !word $0000     ; modulo (ignored)
 

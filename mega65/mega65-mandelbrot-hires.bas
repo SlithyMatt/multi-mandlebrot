@@ -8,31 +8,38 @@
 100 rem reset rtc timer
 110 clr ti
 120 rem mandelbrot loop only 320x200
+121 dx=3.5/320
+122 dy=2.625/200
+124 yc=-1.3125
 130 for py=0 to 199
+135 xc=-2.5
 140 for px=0 to 319
-150 xz=px*3.5/320-2.5
-160 yz=py*2.625/200-1.3125
-170 x=0:y=0:i=0
-190 do while x*x+y*y>4
-200 xt=x*x-y*y+xz
-210 y=2*x*y+yz
+170 x=xc:y=yc:i=1 : REM first iteration...
+180 xx = x*x
+181 yy = y*y
+190 if xx+yy>4 then goto 250
+200 xt=xx-yy+xc
+210 y=2*x*y+yc
 220 x=xt
 230 i=i+1
-240 loop until i>47
-250 pen 0,i%+0
+240 if i<48 then goto 180
+250 pen 0,i+80
 260 line px,py
+265 xc=xc+dx
 270 next px
+275 yc=yc+dy
 280 next py
 300 et = ti : rem save execution time
 310 getkey a$ : rem wait for keypress
 320 screen close 1
 330 print et
+340 end
 1000 rem generate custom palette
 1010 palette 1,0,0,0,0
 1010 for r=0 to 2
 1020 for g=0 to 3
 1030 for b=0 to 3
-1040 palette 1,81+r*16+g*4+b,14-r*5,14-g*3,14+b*3
+1040 palette 1,81+r*16+g*4+b,14-r*5,14-g*3,14-b*3
 1050 next b,g,r
 1060 rem max iterations black
 1070 palette 1,128,0,0,0
