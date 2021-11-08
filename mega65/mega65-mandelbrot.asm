@@ -42,7 +42,7 @@ basic:
 @line40:
         !word @last, 40         ; line 40
         !byte $fe, $41, $91     ; cursor on
-        !text ",35,1:"
+        !text ",65,2:"
         !byte $99               ; print
         !text "et:"             ; et:
         !byte $fe, $41, $91     ; cursor on
@@ -60,6 +60,9 @@ init:
         ldy #0
         ldz #%10110000
         map                     ; set memory map to give us IO and some ROM (right?)
+        lda DMA_CONTROL
+        ora #1
+        sta DMA_CONTROL         ; enable F018B Style DMA
         lda #0
         sta DMA_ADDRBANK
         lda #>dma_cls
@@ -72,7 +75,6 @@ init:
 ; MANDELBROT LOOP
 ;
         sei                     ; we don't need no interruptions
-        ldz #0                  ; 45ce02 has z register, we need it to be zero
         lda #base_page
         tab                     ; move base-page so we can use base page addresses for everything
         lda #0
@@ -95,12 +97,18 @@ init:
 @loop:
         jsr mand_get            ; no need to store A, because result is also in mand_res
         txa
-        taz                     ; move x to z, to use it as our base-page indirect offset
+        clc
+        rol                     
+        taz                     ; z = x*2
         lda #REVERSE_SPACE
         sta [mand_scrn],z       ; reverse space to the screen
+        inz
+        sta [mand_scrn],z       ; double width
+        dez
         lda mand_res
         sta [mand_colr],z       ; iterations as colour index to to cram
-        ldz #0                  ; restore z to 0
+        inz
+        sta [mand_colr],z       ; double width
         inx
         cpx #MAND_WIDTH
         bne @loop               ; next x
@@ -130,22 +138,22 @@ init:
 
 dma_cls:
         ; two dma command blocks chained
-        ; clear screen with space
-        !byte DMA_FILL|DMA_CHAIN
-        !word 80*25
-        !word $0020     ; fill value SPACE
-        !byte $00       ; src bank (ignored)
-        !word M65_SCREEN
-        !byte M65_SCREEN_BANK
-        !byte $00       ; cmd msb (unused)
-        !word $0000     ; modulo (ignored)
         ; set color to white
-        !byte DMA_FILL
+        !byte DMA_FILL|DMA_CHAIN
         !word 80*25
         !word $0001     ; fill value WHITE
         !byte $00       ; src bank (ignore)
         !word M65_COLRAM
         !byte M65_COLRAM_BANK
+        !byte $00       ; cmd msb (unused)
+        !word $0000     ; modulo (ignored)
+        ; clear screen with space
+        !byte DMA_FILL
+        !word 80*25
+        !word $0020     ; fill value SPACE
+        !byte $00       ; src bank (ignored)
+        !word M65_SCREEN
+        !byte M65_SCREEN_BANK
         !byte $00       ; cmd msb (unused)
         !word $0000     ; modulo (ignored)
 
