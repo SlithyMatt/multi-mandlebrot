@@ -21,6 +21,11 @@ REVERSE_SPACE     = $A0
 ;; 40 CURSOR ON,35,1:PRINT ET:CURSOR ON,1,21
 ;;
 basic:
+        !word @line10, 1
+        !byte $97               ; POKE
+        !text " 0,65"           ; set speed to 40.5 MHz
+        !byte 0                 ; eol
+@line10:
         !word @line20, 10       ; line 10
         !byte $9c               ; CLR
         !text " ti"             ; TI
@@ -98,7 +103,7 @@ init:
         jsr mand_get            ; no need to store A, because result is also in mand_res
         txa
         clc
-        rol                     
+        rol
         taz                     ; z = x*2
         lda #REVERSE_SPACE
         sta [mand_scrn],z       ; reverse space to the screen
