@@ -9,6 +9,8 @@
 
    jmp start
 
+
+
 hello_str: .asciiz "Hello, World!"
 
 DEFMASK        = %00001000 ; background enabled
@@ -16,6 +18,7 @@ DEFMASK        = %00001000 ; background enabled
 START_X        = 9
 START_Y        = 14
 START_NT_ADDR  = NAMETABLE_A + 32*START_Y + START_X
+START_AT_ADDR  = ATTRTABLE_A + 32*START_Y + START_X
 
 .macro WAIT_VBLANK
 :  bit PPUSTATUS
@@ -59,37 +62,44 @@ start:
    sta PPUADDR
    lda #BLACK
    sta PPUDATA ; black backround color
-   sta PPUDATA ; palette 0, color 0 = black
    lda #WHITE
-   sta PPUDATA ; color 1 = white
+   sta PPUDATA ; background palette 0, color 1 = white
    lda #(RED | DARK)
    sta PPUDATA ; color 2 = dark red
    lda #(CYAN | LIGHT)
    sta PPUDATA ; color 3 = light cyan
+   lda #BLACK
+   sta PPUDATA ; black backround color
    lda #(MAGENTA | LIGHT)
-   sta PPUDATA ; palette 1, color 0 = light magenta
+   sta PPUDATA ; background palette 1, color 1 = light magenta
    lda #(GREEN | NEUTRAL)
-   sta PPUDATA ; color 1 = green
+   sta PPUDATA ; color 2 = green
    lda #(BLUE | DARK)
-   sta PPUDATA ; color 2 = dark blue
+   sta PPUDATA ; color 3 = dark blue
+   lda #BLACK
+   sta PPUDATA ; black backround color
    lda #(YELLOW | LIGHT)
-   sta PPUDATA ; color 3 = light yellow
+   sta PPUDATA ; background palette 2, color 1 = light yellow
    lda #(ORANGE | LIGHT)
-   sta PPUDATA ; palette 2, color 0 = orange
+   sta PPUDATA ; color 2 = orange
    lda #(ORANGE | DARK)
-   sta PPUDATA ; color 1 = brown
+   sta PPUDATA ; color 3 = brown
+   lda #BLACK
+   sta PPUDATA ; black backround color
    lda #(SALMON | NEUTRAL)
-   sta PPUDATA ; color 2 = salmon
+   sta PPUDATA ; background palette 3, color 1 = salmon
    lda #(GRAY | DARK)
-   sta PPUDATA ; color 3 = dark gray
+   sta PPUDATA ; color 2 = dark gray
    lda #(GRAY | NEUTRAL)
-   sta PPUDATA ; palette 2, color 0 = medium gray
+   sta PPUDATA ; color 3 = medium gray
+   lda #BLACK
+   sta PPUDATA ; black backround color
    lda #(GREEN | VERY_LIGHT)
-   sta PPUDATA ; color 1 = light green
+   sta PPUDATA ; sprite palette 0, color 1 = light green
    lda #(BLUE | LIGHT)
    sta PPUDATA ; color 2 = light blue
    lda #(GRAY | LIGHT)
-   sta PPUDATA ; color 3 = light gray
+   sta PPUDATA ; color 3 = light gray (actually white, but won't be used)
 
 
 
@@ -107,13 +117,13 @@ start:
    jmp @string_loop
 
 @setpal:
-   ; set all table A tiles to palette 0
+   ; set all attribute A tiles to palette 0
    lda #>ATTRTABLE_A
    sta PPUADDR
    lda #<ATTRTABLE_A
    sta PPUADDR
-   ldx #16
-   lda #1
+   ldx #64
+   lda #0
 @attr_loop:
    sta PPUDATA
    dex
