@@ -117,6 +117,9 @@ start:
    sta PPUADDR
    pla
    sta PPUDATA
+   lda #0         ; reset scroll position
+   sta PPUSCROLL
+   sta PPUSCROLL
    lda PLOTADDR
    clc
    adc #1
@@ -143,23 +146,7 @@ start:
 ; ------------------------------------------------------------------------
 
 nmi:
-   pha
-
-   ; refresh scroll position to 0,0
-   lda #0
-   sta PPUSCROLL
-   sta PPUSCROLL
-
-   ; keep default PPU config
-   lda #DEFCTRL
-   sta PPUCTRL
-   lda #DEFMASK
-   sta PPUMASK
-
    inc NMI_COUNTER
-
-   pla
-
    ; Interrupt exit
 irq:
    rti
