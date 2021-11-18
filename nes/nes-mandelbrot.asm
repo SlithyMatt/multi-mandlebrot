@@ -9,16 +9,9 @@
 
    jmp start
 
-
-
-hello_str: .asciiz "Hello, World!"
+.include "../6502/mandelbrot.asm"
 
 DEFMASK        = %00001000 ; background enabled
-
-START_X        = 9
-START_Y        = 14
-START_NT_ADDR  = NAMETABLE_A + 32*START_Y + START_X
-START_AT_ADDR  = ATTRTABLE_A + 32*START_Y + START_X
 
 .macro WAIT_VBLANK
 :  bit PPUSTATUS
@@ -68,53 +61,6 @@ start:
    sta PPUDATA ; color 2 = green
    lda #(BLUE| NEUTRAL)
    sta PPUDATA ; color 3 = blue
-   lda #BLACK
-   sta PPUDATA ; black backround color
-   lda #(MAGENTA | LIGHT)
-   sta PPUDATA ; background palette 1, color 1 = light magenta
-   lda #(GREEN | NEUTRAL)
-   sta PPUDATA ; color 2 = green
-   lda #(BLUE | DARK)
-   sta PPUDATA ; color 3 = dark blue
-   lda #BLACK
-   sta PPUDATA ; black backround color
-   lda #(YELLOW | LIGHT)
-   sta PPUDATA ; background palette 2, color 1 = light yellow
-   lda #(ORANGE | LIGHT)
-   sta PPUDATA ; color 2 = orange
-   lda #(ORANGE | DARK)
-   sta PPUDATA ; color 3 = brown
-   lda #BLACK
-   sta PPUDATA ; black backround color
-   lda #(SALMON | NEUTRAL)
-   sta PPUDATA ; background palette 3, color 1 = salmon
-   lda #(GRAY | DARK)
-   sta PPUDATA ; color 2 = dark gray
-   lda #(GRAY | NEUTRAL)
-   sta PPUDATA ; color 3 = medium gray
-   lda #BLACK
-   sta PPUDATA ; black backround color
-   lda #(GREEN | VERY_LIGHT)
-   sta PPUDATA ; sprite palette 0, color 1 = light green
-   lda #(BLUE | LIGHT)
-   sta PPUDATA ; color 2 = light blue
-   lda #(GRAY | LIGHT)
-   sta PPUDATA ; color 3 = light gray (actually white, but won't be used)
-
-
-
-   ; place string character tiles
-   lda #>START_NT_ADDR
-   sta PPUADDR
-   lda #<START_NT_ADDR
-   sta PPUADDR
-   ldx #0
-@string_loop:
-   lda hello_str,x
-   beq @setpal
-   sta PPUDATA
-   inx
-   jmp @string_loop
 
 @setpal:
    ; set all attribute A tiles to palette 0
@@ -136,6 +82,29 @@ start:
    ; enable display
    lda #DEFMASK
    sta PPUMASK
+
+   lda #>NAMETABLE_A
+   sta PPUADDR
+   lda #<NAMETABLE_A
+   sta PPUADDR
+   ldx #0
+   ldy #0
+@plot_loop:
+   jsr mand_get
+   clc
+   adc #1
+   cmp #15
+   bne @plot
+   lda #0
+@plot:
+   sta PPUDATA
+   inx
+   cpx #MAND_WIDTH
+   bne @plot_loop
+   ldx #0
+   iny
+   cpy #MAND_HEIGHT
+   bne @plot_loop
 
 @game_loop:
    WAIT_VBLANK

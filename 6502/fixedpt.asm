@@ -17,6 +17,13 @@ FP_C = $26
 FP_R = $28
 .endif
 
+.ifdef __NES__
+FP_A = $00
+FP_B = $02
+FP_C = $04
+FP_R = $06
+.endif
+
 fp_lda_byte: ; FP_A = A
    sta FP_A+1
 .if (.cpu .bitand ::CPU_ISET_65SC02)
