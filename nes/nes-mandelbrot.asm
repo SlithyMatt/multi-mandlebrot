@@ -12,12 +12,20 @@
 .include "../6502/mandelbrot.asm"
 
 PLOTADDR       = $16
+NMI_COUNTER    = $18
 
+DEFCTRL        = %10000000 ; NMI on VBLANK
 DEFMASK        = %00001000 ; background enabled
 
 .macro WAIT_VBLANK
 :  bit PPUSTATUS
    bpl :-
+.endmacro
+
+.macro WAIT_NMI
+   lda NMI_COUNTER
+:  cmp NMI_COUNTER
+   beq :-
 .endmacro
 
 start:
@@ -81,6 +89,12 @@ start:
    lda #DEFMASK
    sta PPUMASK
 
+   ; re-enable NMI
+   lda PPUSTATUS ; clear VBLANK
+   lda #DEFCTRL
+   sta PPUCTRL
+
+   ; intialize plot
    lda #<NAMETABLE_A
    sta PLOTADDR
    lda #>NAMETABLE_A
@@ -96,7 +110,7 @@ start:
    lda #0
 @plot:
    pha
-   WAIT_VBLANK
+   WAIT_NMI
    lda PLOTADDR+1
    sta PPUADDR
    lda PLOTADDR
@@ -118,13 +132,8 @@ start:
    cpy #MAND_HEIGHT
    bne @plot_loop
 
-   ; set scroll position to 0,0
-   lda #0
-   sta PPUSCROLL ; x = 0
-   sta PPUSCROLL ; y = 0
-
 @game_loop:
-   WAIT_VBLANK
+   WAIT_NMI
    ; do something
    jmp @game_loop
 
@@ -142,9 +151,12 @@ nmi:
    sta PPUSCROLL
 
    ; keep default PPU config
+   lda #DEFCTRL
    sta PPUCTRL
    lda #DEFMASK
    sta PPUMASK
+
+   inc NMI_COUNTER
 
    pla
 
