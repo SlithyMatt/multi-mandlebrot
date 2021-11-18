@@ -62,12 +62,12 @@ start:
    sta PPUADDR
    lda #BLACK
    sta PPUDATA ; black backround color
-   lda #WHITE
-   sta PPUDATA ; background palette 0, color 1 = white
-   lda #(RED | DARK)
-   sta PPUDATA ; color 2 = dark red
-   lda #(CYAN | LIGHT)
-   sta PPUDATA ; color 3 = light cyan
+   lda #(RED | NEUTRAL)
+   sta PPUDATA ; background palette 0, color 1 = red
+   lda #(GREEN | NEUTRAL)
+   sta PPUDATA ; color 2 = green
+   lda #(BLUE| NEUTRAL)
+   sta PPUDATA ; color 3 = blue
    lda #BLACK
    sta PPUDATA ; black backround color
    lda #(MAGENTA | LIGHT)
