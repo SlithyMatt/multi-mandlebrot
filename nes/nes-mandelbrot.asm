@@ -11,6 +11,8 @@
 
 .include "../6502/mandelbrot.asm"
 
+PLOTADDR       = $16
+
 DEFMASK        = %00001000 ; background enabled
 
 .macro WAIT_VBLANK
@@ -75,18 +77,14 @@ start:
    dex
    bne @attr_loop
 
-   ; set scroll position to 0,0
-   lda #0
-   sta PPUSCROLL ; x = 0
-   sta PPUSCROLL ; y = 0
    ; enable display
    lda #DEFMASK
    sta PPUMASK
 
-   lda #>NAMETABLE_A
-   sta PPUADDR
    lda #<NAMETABLE_A
-   sta PPUADDR
+   sta PLOTADDR
+   lda #>NAMETABLE_A
+   sta PLOTADDR+1
    ldx #0
    ldy #0
 @plot_loop:
@@ -97,7 +95,21 @@ start:
    bne @plot
    lda #0
 @plot:
+   pha
+   WAIT_VBLANK
+   lda PLOTADDR+1
+   sta PPUADDR
+   lda PLOTADDR
+   sta PPUADDR
+   pla
    sta PPUDATA
+   lda PLOTADDR
+   clc
+   adc #1
+   sta PLOTADDR
+   lda PLOTADDR+1
+   adc #0
+   sta PLOTADDR+1
    inx
    cpx #MAND_WIDTH
    bne @plot_loop
@@ -105,6 +117,11 @@ start:
    iny
    cpy #MAND_HEIGHT
    bne @plot_loop
+
+   ; set scroll position to 0,0
+   lda #0
+   sta PPUSCROLL ; x = 0
+   sta PPUSCROLL ; y = 0
 
 @game_loop:
    WAIT_VBLANK

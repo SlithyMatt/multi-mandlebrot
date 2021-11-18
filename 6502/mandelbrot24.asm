@@ -23,15 +23,6 @@ MAND_HEIGHT = 240
 MAND_MAX_IT = 48
 .endif
 
-.ifdef __NES__
-mand_x0     = $08
-mand_y0     = $0A
-mand_x      = $0C
-mand_y      = $0E
-mand_x2     = $10
-mand_y2     = $12
-mand_xtemp  = $14
-.else
 mand_x0:       .dword 0
 mand_y0:       .dword 0
 mand_x:        .dword 0
@@ -39,7 +30,6 @@ mand_y:        .dword 0
 mand_x2:       .dword 0
 mand_y2:       .dword 0
 mand_xtemp:    .dword 0
-.endif
 
 mand_get:   ; Input:
             ;  mand_x,mand_y - bitmap coordinates
