@@ -36,7 +36,7 @@ start:
    ldx #$FF
    txs ; init stack pointer
    inx ; reset X to zero to initialize PPU and APU registers
-   stx PPUCTRL
+   stx PPUCTRL ; disable NMI
    stx PPUMASK
    stx APU_MODCTRL
 
