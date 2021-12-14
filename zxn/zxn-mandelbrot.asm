@@ -26,7 +26,9 @@ init:
 	push hl              ; to correct return into basic
    nextreg $43,$01      ; enable enhanced ULA, first ULA palette, auto-increment
    nextreg $42,%00001111   ; 16/16 color mode
-   .258 nextreg $44,%00000000   ; Ink Colors 0-127, Paper Color 0: black
+   nextreg $40,128         ; start with paper color 0
+   nextreg $44,%00000000   ; Paper Color 0: black
+   nextreg $44,%00000000
    nextreg $44,%00100100   ; Paper Color 1: gray 1
    nextreg $44,%00000001
    nextreg $44,%01001001   ; Paper Color 2: gray 2
