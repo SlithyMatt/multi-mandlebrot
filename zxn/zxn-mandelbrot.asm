@@ -17,50 +17,49 @@ COLOR_MAP         = $5800
 i_result: db 0
 
 color_codes:
-   db 0,8,16,24,32,40,48,56
-   db 72,80,88,96,104,112,120
+   db $10,$20,$30,$40,$50,$60,$70,$80
+   db $90,$A0,$B0,$C0,$D0,$E0,$00
 
 init:
    nextreg $07,$03      ; set to 28 MHz
    exx                  ; save hl' register on stack
 	push hl              ; to correct return into basic
-   nextreg $43,$01      ; enable ULAnext, first ULA palette, auto-increment
-   nextreg $42,15       ; 16 color mode
-   nextreg $44,%00000000   ; Color 0: black
-   nextreg $44,%00000000
-   nextreg $44,%00100100   ; Color 1: gray 1
+   nextreg $43,$01      ; enable enhanced ULA, first ULA palette, auto-increment
+   nextreg $42,%00001111   ; 16/16 color mode
+   .258 nextreg $44,%00000000   ; Ink Colors 0-127, Paper Color 0: black
+   nextreg $44,%00100100   ; Paper Color 1: gray 1
    nextreg $44,%00000001
-   nextreg $44,%01001001   ; Color 2: gray 2
+   nextreg $44,%01001001   ; Paper Color 2: gray 2
    nextreg $44,%00000000
-   nextreg $44,%01101101   ; Color 3: gray 3
+   nextreg $44,%01101101   ; Paper Color 3: gray 3
    nextreg $44,%00000001
-   nextreg $44,%10010010   ; Color 4: gray 4
+   nextreg $44,%10010010   ; Paper Color 4: gray 4
    nextreg $44,%00000000
-   nextreg $44,%10110110   ; Color 5: gray 5
+   nextreg $44,%10110110   ; Paper Color 5: gray 5
    nextreg $44,%00000001
-   nextreg $44,%10010010   ; Color 4: gray 4
+   nextreg $44,%10010010   ; Paper Color 4: gray 4
    nextreg $44,%00000000
-   nextreg $44,%10110110   ; Color 5: gray 5
+   nextreg $44,%10110110   ; Paper Color 5: gray 5
    nextreg $44,%00000001
-   nextreg $44,%11011011   ; Color 6: gray 6
+   nextreg $44,%11011011   ; Paper Color 6: gray 6
    nextreg $44,%00000000
-   nextreg $44,%11111111   ; Color 7: white
+   nextreg $44,%11111111   ; Paper Color 7: white
    nextreg $44,%00000001
-   nextreg $44,%00100100   ; Color 8: yellow 1
+   nextreg $44,%00100100   ; Paper Color 8: yellow 1
    nextreg $44,%00000000
-   nextreg $44,%01001000   ; Color 9: yellow 2
+   nextreg $44,%01001000   ; Paper Color 9: yellow 2
    nextreg $44,%00000000
-   nextreg $44,%01101100   ; Color 10: yellow 3
+   nextreg $44,%01101100   ; Paper Color 10: yellow 3
    nextreg $44,%00000000
-   nextreg $44,%10010000   ; Color 11: yellow 4
+   nextreg $44,%10010000   ; Paper Color 11: yellow 4
    nextreg $44,%00000000
-   nextreg $44,%10110100   ; Color 12: yellow 5
+   nextreg $44,%10110100   ; Paper Color 12: yellow 5
    nextreg $44,%00000000
-   nextreg $44,%11011000   ; Color 13: yellow 6
+   nextreg $44,%11011000   ; Paper Color 13: yellow 6
    nextreg $44,%00000000
-   nextreg $44,%11111100   ; Color 14: yellow 7
+   nextreg $44,%11111100   ; Paper Color 14: yellow 7
    nextreg $44,%00000000
-   nextreg $44,%00100000   ; Color 15: red 1
+   nextreg $44,%00100000   ; Paper Color 15: red 1
    nextreg $44,%00000000
 
    ld bc,0              ; X = 0, Y = 0
