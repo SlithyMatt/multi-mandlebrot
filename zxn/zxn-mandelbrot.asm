@@ -9,8 +9,7 @@ start:
 	include "../Z80n/mandelbrot.asm"
 	include "stiple.asm"
 
-ROM_CLS           = $0DAF
-
+SCREEN_PIXELS     = $4000
 COLOR_MAP         = $5800
 
 
@@ -24,6 +23,11 @@ init:
    nextreg $07,$03      ; set to 28 MHz
    exx                  ; save hl' register on stack
 	push hl              ; to correct return into basic
+   ld hl,SCREEN_PIXELS          ; clear all pixels
+   ld (hl),0
+   ld de,SCREEN_PIXELS+1
+   ld bc,$1800
+   ldir
    nextreg $43,$01      ; enable enhanced ULA, first ULA palette, auto-increment
    nextreg $42,%00001111   ; 16/16 color mode
    nextreg $40,128         ; start with paper color 0
