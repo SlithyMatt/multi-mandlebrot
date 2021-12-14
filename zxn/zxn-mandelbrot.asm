@@ -5,9 +5,9 @@
 start:
 	jp init
 
-   MAND_WIDTH  = 128
-   MAND_HEIGHT = 96
-   MAND_MAX_IT = 15
+MAND_WIDTH  = 128
+MAND_HEIGHT = 96
+MAND_MAX_IT = 15
 
 	include "../Z80n/mandelbrot.asm"
 
