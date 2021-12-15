@@ -33,63 +33,62 @@ mand_x2:       dd 0
 mand_y2:       dd 0
 mand_xtemp:    dd 0
 
+mand_scratch:  dd 0
+
 mand_get:   ; Input:
             ;  B,C - X,Y bitmap coordinates
             ; Output: A - # iterations executed (0 to MAND_MAX_IT-1)
    push bc                    ; preserve BC (X,Y)
-   ld c,0                     ; BC = X
-   ld d,MAND_WIDTH            ; DE = width
-   ld e,0
-   call fp_divide             ; HL = X/width
-   ld c,l                     ; BC = X/width
+   ld h,0
+   ld l,b
    ld b,h
-   ld de,MAND_XMAX            ; DE = Xmax
-   call fp_multiply           ; HL = X/width*Xmax
-   ld de,MAND_XMIN            ; DE = Xmin
-   add hl,de                  ; HL = X/width*Xmax - Xmin
-   ld (mand_x0),hl            ; X0 = HL
+   FP_LDB_WORD MAND_WIDTH
+   call fp_divide             ; FP_A = X/width
+   FP_LDB MAND_XMAX           ; FP_B = Xmax
+   call fp_multiply           ; FP_A = X/width*Xmax
+   FP_LDB MAND_XMIN           ; FP_B = Xmin
+   FP_ADD                     ; FP_A = X/width*Xmax + Xmin
+   FP_STA mand_x0             ; X0 = FP_A
    pop bc                     ; retrieve X,Y from stack
 
    push bc                    ; put X,Y back on stack
-   ld b,c
-   ld c,0                     ;BC = Y
-   ld de,MAND_YMAX            ;DE = Ymax
-   call fp_multiply           ;HL = Y*Ymax
-   ld c,l
-   ld b,h                     ; BC = Y*Ymax
-   ld d,MAND_HEIGHT           ; DE = height
-   ld e,0
-   call fp_divide             ; HL = Y*Ymax/height
-   ld de,MAND_YMIN            ; DE = Ymin
-   add hl,de                  ; HL = Y*Ymax/height + Y
-   ld (mand_y0),hl            ; Y0 = HL
+   ld h,0
+   ld l,c
+   ld b,h                     ; FP_A = Y
+   FP_LDB MAND_YMAX           ; FP_B = Ymax
+   call fp_multiply           ; FP_A = Y*Ymax
+   FP_LDB_WORD MAND_HEIGHT    ; FP_B = height
+   call fp_divide             ; FP_A = Y*Ymax/height
+   FP_LDB MAND_YMIN           ; FP_B = Ymin
+   FP_ADD                     ; FP_A = Y*Ymax/height + Ymin
+   FP_STA mand_y0             ; Y0 = FP_A
 
-   ld hl,0
-   ld (mand_x),hl             ; X = 0
-   ld (mand_y),hl             ; Y = 0
-   xor a                      ; I = 0
+   ld a,0                     ; I = 0
+   ld (mand_x),a              ; X = 0
+   ld (mand_x+1),a
+   ld (mand_x+2),a
+   ld (mand_y),a              ; Y = 0
+   ld (mand_y+1),a
+   ld (mand_y+2),a
 .loopi:
    push af                    ; A = I
-   ld bc,(mand_x)             ; BC = X
-   ld d,b
-   ld e,c                     ; DE = X
-   call fp_multiply           ; HL = X^2
-   push hl                    ; put X^2 on stack
-   ld bc,(mand_y)             ; BC = Y
-   ld d,b
-   ld e,c                     ; DE = Y
-   call fp_multiply           ; HL = Y^2
-   pop de                     ; DE = X^2
-   push de                    ; get X^2 from stack and put it back again
-   push hl                    ; HL = Y^2
-   add hl,de                  ; HL = X^2+Y^2
-   pop bc                     ; BC = Y^2
-   pop de                     ; DE = X^2
+   FP_LDA mand_x              ; FP_A = X
+   FP_TAB                     ; FP_B = X
+   call fp_multiply           ; FP_A = X^2
+   FP_STA mand_scratch        ; save X^2 in scratch
+   FP_LDA mand_y              ; FP_A = Y
+   FP_TAB                     ; FP_B = Y
+   call fp_multiply           ; FP_A = Y^2
+   FP_LDB mand_scratch        ; FP_B = X^2
+   FP_ADD                     ; FP_A = X^2+Y^2
+   ld a,0
+   or h
+   jp nz,.dec_i               ; done iterating if X^2 + Y^2 >= 256
    ld a,4                     ; A = 4
-   sub h                      ; A = 4 - int(X^2 + Y^2)
+   sub l                      ; A = 4 - int(X^2 + Y^2)
    jp c,.dec_i                ; if (4 - int(X^2 + Y^2) < 0)  -> exit
    jp nz,.do_it               ; if (4 - int(X^2 + Y^2) != 0) -> do_it
-   ld a,l                     ; A = frac(X^2 + Y^2)
+   ld a,b                     ; A = frac(X^2 + Y^2)
    or a                       ; z-flag set if A == 0
    jr nz,.dec_i               ; int(X^2 + Y^2) == 4  but frac(X^2 + Y^2) != 0 -> exit
 .do_it:                       ; we get here with c-flag always clear
