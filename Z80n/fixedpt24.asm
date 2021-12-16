@@ -16,7 +16,7 @@ fp_scratch2:
 
    MACRO FP_LDA_WORD source
       ld h,high source
-      ld l,low wource
+      ld l,low source
       ld b,0
    ENDM
 
@@ -103,7 +103,8 @@ fp_floor: ; FP_A = floor(FP_A)
    ENDM
 
 fp_divide: ; FP_A = FP_A / FP_B; FP_REM = FP_A % FP_B
-   ld (fp_scratch1+3),h  ; stash high byte of FP_A to test for sign later
+   ld h,a
+   ld (fp_scratch1+3),a  ; stash high byte of FP_A to test for sign later
    ld a,b
    ld (fp_scratch1),a
    ld (fp_scratch1+1),de ; preserve FP_B
