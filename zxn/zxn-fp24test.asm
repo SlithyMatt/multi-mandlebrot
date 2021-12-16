@@ -14,17 +14,17 @@ results:  dd 0,0,0
 init:
    nextreg $07,$03      ; set to 28 MHz
 
-   FP_LDA_WORD 4
-   FP_LDB_WORD 8
-   call fp_multiply  ; a = 32
+   FP_LDA_WORD 400
+   FP_LDB_WORD 80
+   call fp_multiply  ; a = 32000
    FP_STA results
-   call fp_divide    ; a = 4
+   call fp_divide    ; a = 400
    FP_STA results+3
 
 
 done:
    halt
-   jp done
+   jp init
 
 
 ; Deployment

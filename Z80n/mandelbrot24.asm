@@ -71,14 +71,14 @@ mand_get:   ; Input:
    ld (mand_y+2),a
 .loopi:
    push af                    ; A = I
-   FP_LDA mand_x              ; FP_A = X
+   FP_LDA_IND mand_x          ; FP_A = X
    FP_TAB                     ; FP_B = X
    call fp_multiply           ; FP_A = X^2
    FP_STA mand_scratch        ; save X^2 in scratch
-   FP_LDA mand_y              ; FP_A = Y
+   FP_LDA_IND mand_y          ; FP_A = Y
    FP_TAB                     ; FP_B = Y
    call fp_multiply           ; FP_A = Y^2
-   FP_LDB mand_scratch        ; FP_B = X^2
+   FP_LDB_IND mand_scratch    ; FP_B = X^2
    FP_STA mand_scratch        ; save Y^2 in scratch
    FP_ADD                     ; FP_A = X^2+Y^2
    ld a,0
@@ -92,22 +92,22 @@ mand_get:   ; Input:
    or a                       ; z-flag set if A == 0
    jr nz,.dec_i               ; int(X^2 + Y^2) == 4  but frac(X^2 + Y^2) != 0 -> exit
 .do_it:                       ; we get here with c-flag always clear
-   FP_LDA mand_scratch        ; FP_A = Y^2
+   FP_LDA_IND mand_scratch    ; FP_A = Y^2
    FP_EXAB                    ; FP_A = X^2, FP_B = Y^2
    FP_SUBTRACT                ; FP_A = X^2 - Y^2
-   FP_LDB mand_x0             ; FP_B = X0
+   FP_LDB_IND mand_x0         ; FP_B = X0
    FP_ADD                     ; FP_A = X^2 - Y^2 + X0
    FP_STA mand_xtemp          ; Xtemp = FP_A
-   FP_LDA mand_x              ; FP_A = X
+   FP_LDA_IND mand_x          ; FP_A = X
    sla b
    rl l
    rl h                       ; FP_A = 2*X
-   FP_LDB mand_y              ; FP_B = Y
+   FP_LDB_IND mand_y          ; FP_B = Y
    call fp_multiply           ; FP_A = 2*X*Y
-   FP_LDB mand_y0             ; FP_B = Y0
+   FP_LDB_IND mand_y0         ; FP_B = Y0
    FP_ADD                     ; FP_A = 2*X*Y + Y0
    FP_STA mand_y              ; Y = FP_A
-   FP_LDA mand_xtemp          ; FP_A = Xtemp
+   FP_LDA_IND mand_xtemp      ; FP_A = Xtemp
    FP_STA mand_x              ; X = FP_A
    pop af                     ; A = I
    inc a                      ; A = I + 1

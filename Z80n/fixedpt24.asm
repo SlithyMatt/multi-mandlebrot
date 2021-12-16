@@ -105,7 +105,7 @@ fp_floor: ; FP_A = floor(FP_A)
 fp_divide: ; FP_A = FP_A / FP_B; FP_REM = FP_A % FP_B
    ld h,a
    ld (fp_scratch1+3),a  ; stash high byte of FP_A to test for sign later
-   ld a,b
+   ld a,c
    ld (fp_scratch1),a
    ld (fp_scratch1+1),de ; preserve FP_B
    bit 7,h
@@ -142,8 +142,7 @@ fp_divide: ; FP_A = FP_A / FP_B; FP_REM = FP_A % FP_B
    rl (ix+2)
    ld a,(ix)
    FP_STA fp_scratch2   ; trial subtraction
-   FP_TAB
-   FP_LDA fp_remainder
+   FP_LDA_IND fp_remainder
    FP_SUBTRACT
    jp c,.loop2          ; Did subtraction succeed?
    ld (ix),b            ; if yes, save it
@@ -152,11 +151,12 @@ fp_divide: ; FP_A = FP_A / FP_B; FP_REM = FP_A % FP_B
    inc a
    ld (fp_scratch2),a
 .loop2:
-   FP_LDA fp_scratch2
+   FP_LDA_IND fp_scratch2
    ld a,(fp_i)          ; decrement index and loop while >0
    dec a
+   ld (fp_i),a
    jp nz,.loop1
-   FP_LDB fp_scratch1   ; restore FP_B
+   FP_LDB_IND fp_scratch1   ; restore FP_B
    ld a,(fp_scratch1+3) ; get original high byte of FP_A
    bit 7,d
    jp nz,.check_cancel  ; if FP_B is negative, check for sign cancellation
@@ -170,7 +170,7 @@ fp_divide: ; FP_A = FP_A / FP_B; FP_REM = FP_A % FP_B
    FP_TAB
    FP_LDA_WORD 0
    FP_SUBTRACT          ; FP_A = -FP_A
-   FP_LDB fp_scratch1   ; restore FP_B again
+   FP_LDB_IND fp_scratch1   ; restore FP_B again
    ret
 
 fp_multiply: ; slightly optimized version using hardware multiply
@@ -279,12 +279,12 @@ fp_multiply: ; slightly optimized version using hardware multiply
    jp nz,.check_cancel
    ld a,(fp_scratch2+3)
    bit 7,a
-   ret z
+   jp z,.restore_b
    jp .negative
 .check_cancel:
    ld a,(fp_scratch2+3)
    bit 7,a
-   ret nz
+   jp nz,.restore_b
 .negative:
    ld a,0
    sub b
@@ -295,4 +295,18 @@ fp_multiply: ; slightly optimized version using hardware multiply
    ld a,0
    sbc h
    ld h,a
+.restore_b:
+   ld de,(fp_scratch2)
+   ld a,(fp_scratch2+3)
+   bit 7,a
+   ret z
+   ld a,0
+   sub c
+   ld c,a
+   ld a,0
+   sbc e
+   ld e,a
+   ld a,0
+   sbc d
+   ld d,a
    ret
