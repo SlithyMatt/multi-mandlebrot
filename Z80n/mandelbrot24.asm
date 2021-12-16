@@ -31,8 +31,7 @@ mand_x:        dd 0
 mand_y:        dd 0
 mand_x2:       dd 0
 mand_y2:       dd 0
-mand_xtemp:    dd 0
-
+mand_xtemp:    ; also called mand_scratch to avoid confusion with original code
 mand_scratch:  dd 0
 
 mand_get:   ; Input:
@@ -80,6 +79,7 @@ mand_get:   ; Input:
    FP_TAB                     ; FP_B = Y
    call fp_multiply           ; FP_A = Y^2
    FP_LDB mand_scratch        ; FP_B = X^2
+   FP_STA mand_scratch        ; save Y^2 in scratch
    FP_ADD                     ; FP_A = X^2+Y^2
    ld a,0
    or h
@@ -92,22 +92,23 @@ mand_get:   ; Input:
    or a                       ; z-flag set if A == 0
    jr nz,.dec_i               ; int(X^2 + Y^2) == 4  but frac(X^2 + Y^2) != 0 -> exit
 .do_it:                       ; we get here with c-flag always clear
-   ex de,hl                   ; HL = X^2
-   sbc hl,bc                  ; HL = X^2 - Y^2
-   ld de,(mand_x0)            ; DE = X0
-   add hl,de                  ; HL =  X^2 - Y^2 + X0
-   push hl                    ; Xtemp = HL
-   ld bc,(mand_x)             ; BC = X
-   ld de,$200                 ; DE = 2.0
-   call fp_multiply           ; HL = 2*X
-   ex de,hl                   ; DE = 2*X
-   ld bc,(mand_y)             ; BC = Y
-   call fp_multiply           ; HL = 2*X*Y
-   ld de,(mand_y0)            ; DE = Y0
-   add hl,de                  ; HL = 2*X*Y + Y0
-   ld (mand_y),hl             ; Y = HL
-   pop hl                     ; HL = Xtemp
-   ld (mand_x),hl             ; X = HL
+   FP_LDA mand_scratch        ; FP_A = Y^2
+   FP_EXAB                    ; FP_A = X^2, FP_B = Y^2
+   FP_SUBTRACT                ; FP_A = X^2 - Y^2
+   FP_LDB mand_x0             ; FP_B = X0
+   FP_ADD                     ; FP_A = X^2 - Y^2 + X0
+   FP_STA mand_xtemp          ; Xtemp = FP_A
+   FP_LDA mand_x              ; FP_A = X
+   sla b
+   rl l
+   rl h                       ; FP_A = 2*X
+   FP_LDB mand_y              ; FP_B = Y
+   call fp_multiply           ; FP_A = 2*X*Y
+   FP_LDB mand_y0             ; FP_B = Y0
+   FP_ADD                     ; FP_A = 2*X*Y + Y0
+   FP_STA mand_y              ; Y = FP_A
+   FP_LDA mand_xtemp          ; FP_A = Xtemp
+   FP_STA mand_x              ; X = FP_A
    pop af                     ; A = I
    inc a                      ; A = I + 1
    cp MAND_MAX_IT             ; is A == maxI
