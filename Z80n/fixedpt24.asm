@@ -103,7 +103,7 @@ fp_floor: ; FP_A = floor(FP_A)
    ENDM
 
 fp_divide: ; FP_A = FP_A / FP_B; FP_REM = FP_A % FP_B
-   ld h,a
+   ld a,h
    ld (fp_scratch1+3),a  ; stash high byte of FP_A to test for sign later
    ld a,c
    ld (fp_scratch1),a
@@ -145,8 +145,7 @@ fp_divide: ; FP_A = FP_A / FP_B; FP_REM = FP_A % FP_B
    FP_LDA_IND fp_remainder
    FP_SUBTRACT
    jp c,.loop2          ; Did subtraction succeed?
-   ld (ix),b            ; if yes, save it
-   ld (fp_remainder+1),hl
+   FP_STA fp_remainder  ; if yes, save it
    ld a,(fp_scratch2)   ; and record a 1 in the quotient
    inc a
    ld (fp_scratch2),a
@@ -179,8 +178,8 @@ fp_multiply: ; slightly optimized version using hardware multiply
    bit 7,h
    jp z,.checkb
    ld a,0
-   sub c
-   ld c,a
+   sub b
+   ld b,a
    ld a,0
    sbc l
    ld l,a
@@ -193,8 +192,8 @@ fp_multiply: ; slightly optimized version using hardware multiply
    bit 7,d
    jp z,.save_de
    ld a,0
-   sub b
-   ld b,a
+   sub c
+   ld c,a
    ld a,0
    sbc e
    ld e,a
@@ -209,7 +208,7 @@ fp_multiply: ; slightly optimized version using hardware multiply
    ld a,d
    ld (fp_scratch1),a
    ld d,l
-   ld d,b
+   ld e,c
    mul d,e
    ld a,(fp_scratch1)
    add e
@@ -217,7 +216,7 @@ fp_multiply: ; slightly optimized version using hardware multiply
    ld a,0
    adc d
    ld d,h
-   ld e,b
+   ld e,c
    mul d,e
    add e
    ld (fp_scratch1+1),a
@@ -226,7 +225,7 @@ fp_multiply: ; slightly optimized version using hardware multiply
    ld (fp_scratch1+2),a
    ld a,(fp_scratch2)
    ld e,a
-   ld d,c
+   ld d,b
    mul d,e
    ld a,(fp_scratch1)
    add e
@@ -256,7 +255,7 @@ fp_multiply: ; slightly optimized version using hardware multiply
    ld (fp_scratch1+2),a
    ld a,(fp_scratch2+1)
    ld e,a
-   ld d,c
+   ld d,b
    mul d,e
    ld a,(fp_scratch1+1)
    add e

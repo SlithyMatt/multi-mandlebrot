@@ -14,11 +14,11 @@ results:  dd 0,0,0
 init:
    nextreg $07,$03      ; set to 28 MHz
 
-   FP_LDA_WORD 400
-   FP_LDB_WORD 80
-   call fp_multiply  ; a = 32000
+   FP_LDA $012345 ; 291.26953125
+   FP_LDB $001234 ; 18.203125
+   call fp_multiply  ; a = 5302.01568604 ($14b604)
    FP_STA results
-   call fp_divide    ; a = 400
+   call fp_divide    ; a = 294.556423611 ($01268E)
    FP_STA results+3
 
 
