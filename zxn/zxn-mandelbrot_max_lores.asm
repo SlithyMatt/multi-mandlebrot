@@ -34,29 +34,37 @@ init:
    nextreg $44,%00000000
    nextreg $44,%10110110   ; Color 5: gray 5
    nextreg $44,%00000001
-   nextreg $44,%10010010   ; Color 4: gray 4
-   nextreg $44,%00000000
-   nextreg $44,%10110110   ; Color 5: gray 5
-   nextreg $44,%00000001
    nextreg $44,%11011011   ; Color 6: gray 6
    nextreg $44,%00000000
    nextreg $44,%11111111   ; Color 7: white
    nextreg $44,%00000001
-   nextreg $44,%00100100   ; Color 8: yellow 1
+   nextreg $44,%00100000   ; Color 8: red 1
    nextreg $44,%00000000
-   nextreg $44,%01001000   ; Color 9: yellow 2
+   nextreg $44,%01000000   ; Color 9: red 2
    nextreg $44,%00000000
-   nextreg $44,%01101100   ; Color 10: yellow 3
+   nextreg $44,%01100000   ; Color 10: red 3
    nextreg $44,%00000000
-   nextreg $44,%10010000   ; Color 11: yellow 4
+   nextreg $44,%10000000   ; Color 11: red 4
    nextreg $44,%00000000
-   nextreg $44,%10110100   ; Color 12: yellow 5
+   nextreg $44,%10100000   ; Color 12: red 5
    nextreg $44,%00000000
-   nextreg $44,%11011000   ; Color 13: yellow 6
+   nextreg $44,%11000000   ; Color 13: red 6
    nextreg $44,%00000000
-   nextreg $44,%11111100   ; Color 14: yellow 7
+   nextreg $44,%11100000   ; Color 14: red 7
    nextreg $44,%00000000
-   nextreg $44,%00100000   ; Color 15: red 1
+   nextreg $44,%00100100   ; Color 15: yellow 1
+   nextreg $44,%00000000
+   nextreg $44,%01001000   ; Color 16: yellow 2
+   nextreg $44,%00000000
+   nextreg $44,%01101100   ; Color 17: yellow 3
+   nextreg $44,%00000000
+   nextreg $44,%10010000   ; Color 18: yellow 4
+   nextreg $44,%00000000
+   nextreg $44,%10110100   ; Color 19: yellow 5
+   nextreg $44,%00000000
+   nextreg $44,%11011000   ; Color 20: yellow 6
+   nextreg $44,%00000000
+   nextreg $44,%11111100   ; Color 21: yellow 7
    nextreg $44,%00000000
 
    ld bc,0              ; X = 0, Y = 0
