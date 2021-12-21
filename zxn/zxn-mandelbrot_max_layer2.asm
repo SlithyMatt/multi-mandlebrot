@@ -5,22 +5,28 @@
 start:
 	jp init
 
+MAND_WIDTH  = 256
+MAND_HEIGHT = 192
+MAND_MAX_IT = 22
+
 	include "../Z80n/mandelbrot24.asm"
 
-TOP_PIXELS        = $4000
-PIXEL_GAP         = $5800
-BOTTOM_PIXELS     = $6000
+LAYER2_START = $4000
+NEXT_SLOT    = $8000
 
 i_result: db 0
-next_pixel: dw TOP_PIXELS
+next_pixel: dw LAYER2_START
+next_bank: db 18
 
 init:
    nextreg $07,$03         ; set to 28 MHz
-   
+   nextreg $70,$00;10         ; Layer 2: 320x256x8bpp
    ld bc,$123B             ; Layer 2 Access Port
    ld a,$02                ; Display Layer 2
    nextreg $15,$0C         ; place Layer 2 on top
    nextreg $6A,$00         ; 256-color
+   nextreg $52,16          ; Set 16k slot 4 to bank 8 (8k slot 2 = 8k bank 16)
+   nextreg $53,17          ; (8k slot 7 = 8k bank 17)
    nextreg $42,$FF         ; Palette all-ink
    nextreg $43,$00         ; select ULA palette 1, no ULANext
    nextreg $44,%00000000   ; Color 0: black
@@ -79,27 +85,31 @@ init:
 .set_pixel
    ld (hl),a
    inc hl
-   ld a,high PIXEL_GAP
+   ld a,0
+   or l
+   jp nz,.savenext
+   ld a,high NEXT_SLOT
    cp h
    jp nz,.savenext
-   ld a,low PIXEL_GAP
-   cp l
-   jp nz,.savenext
-   ld hl,BOTTOM_PIXELS
+   ld a,(next_bank)
+   nextreg $56,a
+   inc a
+   nextreg $57,a
+   inc a
+   ld (next_bank),a
+   ld hl,LAYER2_START
 .savenext
    ld (next_pixel),hl
-   inc b                ; increment X
-   ld a,MAND_WIDTH
-   cp b
-   jp nz,.loopm         ; loop until X = width
-   ld b,0               ; X = 0
-   inc hl
    inc c                ; increment Y
    ld a,MAND_HEIGHT
    cp c
    jp nz,.loopm         ; loop until Y = height
-   pop hl               ; restore hl' register
-	exx                  ; from stack
+   ld c,0               ; Y = 0
+   inc hl
+   inc b                ; increment X
+   ld a,low MAND_WIDTH
+   cp b
+   jp nz,.loopm         ; loop until X = width
 .loop_end:
 	jp .loop_end
    ret
@@ -109,6 +119,6 @@ init:
 LENGTH      = $ - start
 
 ;;; option 3: nex
-	SAVENEX OPEN "man4.nex",start
+	SAVENEX OPEN "man5.nex",start
 	SAVENEX AUTO
 	SAVENEX CLOSE
