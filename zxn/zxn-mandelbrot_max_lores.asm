@@ -16,8 +16,6 @@ next_pixel: dw TOP_PIXELS
 
 init:
    nextreg $07,$03      ; set to 28 MHz
-   exx                  ; save hl' register on stack
-	push hl              ; to correct return into basic
    nextreg $15,$80         ; enable LoRes
    nextreg $6A,$00         ; 256-color
    nextreg $42,$FF         ; Palette all-ink
@@ -68,6 +66,8 @@ init:
    nextreg $44,%00000000
 
    ld bc,0              ; X = 0, Y = 0
+   ld (mand_x),bc
+   ld (mand_y),bc
 .loopm:
    call mand_get
    ld hl,(next_pixel)
@@ -87,18 +87,27 @@ init:
    ld hl,BOTTOM_PIXELS
 .savenext
    ld (next_pixel),hl
-   inc b                ; increment X
-   ld a,MAND_WIDTH
+   ld bc,(mand_x)
+   inc bc
+   ld (mand_x),bc       ; increment X
+   ld a,high MAND_WIDTH
    cp b
    jp nz,.loopm         ; loop until X = width
-   ld b,0               ; X = 0
-   inc hl
-   inc c                ; increment Y
-   ld a,MAND_HEIGHT
+   ld a,low MAND_WIDTH
    cp c
+   jp nz,.loopm         ; loop until X = width
+   ld bc,0
+   ld (mand_x),bc       ; X = 0
+   inc hl
+   ld bc,(mand_y)
+   inc bc
+   ld (mand_y),bc       ; increment Y
+   ld a,high MAND_HEIGHT
+   cp b
    jp nz,.loopm         ; loop until Y = height
-   pop hl               ; restore hl' register
-	exx                  ; from stack
+   ld a,low MAND_HEIGHT
+   cp c
+   jp nz,.loopm         ; loop until Y = height   
 .loop_end:
 	jp .loop_end
    ret

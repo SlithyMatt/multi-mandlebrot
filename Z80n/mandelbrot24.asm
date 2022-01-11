@@ -35,25 +35,22 @@ mand_xtemp:    ; also called mand_scratch to avoid confusion with original code
 mand_scratch:  dd 0
 
 mand_get:   ; Input:
-            ;  B,C - X,Y bitmap coordinates
+            ;  mand_x,mand_y - X,Y bitmap coordinates (16-bit integers)
             ; Output: A - # iterations executed (0 to MAND_MAX_IT-1)
-   push bc                    ; preserve BC (X,Y)
-   ld h,0
-   ld l,b
-   ld b,h
-   FP_LDB_WORD MAND_WIDTH
+   ld hl,(mand_x)
+   push hl                    ; preserve X on stack
+   ld b,0                     ; FP_A = X
+   FP_LDB_WORD MAND_WIDTH     ; FP_B = width
    call fp_divide             ; FP_A = X/width
    FP_LDB MAND_XMAX           ; FP_B = Xmax
    call fp_multiply           ; FP_A = X/width*Xmax
    FP_LDB MAND_XMIN           ; FP_B = Xmin
    FP_ADD                     ; FP_A = X/width*Xmax + Xmin
    FP_STA mand_x0             ; X0 = FP_A
-   pop bc                     ; retrieve X,Y from stack
 
-   push bc                    ; put X,Y back on stack
-   ld h,0
-   ld l,c
-   ld b,h                     ; FP_A = Y
+   ld hl,(mand_y)
+   push hl                    ; preserve Y on stack
+   ld b,0                     ; FP_A = Y
    FP_LDB MAND_YMAX           ; FP_B = Ymax
    call fp_multiply           ; FP_A = Y*Ymax
    FP_LDB_WORD MAND_HEIGHT    ; FP_B = height
@@ -117,5 +114,8 @@ mand_get:   ; Input:
 .dec_i:
    pop af                     ; A = I
    dec a                      ; A = I - 1
-   pop bc                                                         ; restore BC (X,Y)
+   pop hl
+   ld (mand_y),hl             ; restore Y from stack
+   pop hl
+   ld (mand_x),hl             ; restore X from stack
    ret
