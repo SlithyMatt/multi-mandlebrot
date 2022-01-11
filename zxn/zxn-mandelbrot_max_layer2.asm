@@ -33,7 +33,7 @@ init:
    nextreg $18,0           ; X1 = 0
    nextreg $18,159         ; X2 = 159
    nextreg $18,0           ; Y1 = 0
-   nextreg $18,127         ; Y2 = 127
+   nextreg $18,255         ; Y2 = 255
    ld bc,0                 ; X = 0, Y = 0
    ld (mand_x),bc
    ld (mand_y),bc
