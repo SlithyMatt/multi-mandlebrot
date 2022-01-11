@@ -5,6 +5,10 @@
 start:
 	jp init
 
+MAND_XMIN   = $FFFEC0 ; -1.25
+MAND_XMAX   = $000280 ; 2.5
+MAND_YMIN   = $FFFF00 ; -1
+MAND_YMAX   = $000200 ; 2
 MAND_WIDTH  = 320
 MAND_HEIGHT = 256
 MAND_MAX_IT = 48
