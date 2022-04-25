@@ -1,0 +1,19 @@
+100 SCALE 110,0,0:PAPER 0:CLS
+110 t=DATE
+120 FOR py=0 TO 21
+130 FOR px=0 TO 31
+140 xz=px*3.5/32-2.5
+150 yz=py*2/22-1
+160 x=0:y=0
+170 FOR i=0 TO 14
+180 IF x*x+y*y>4 THEN GO TO 230
+190 xt=x*x-y*y+xz
+200 y=2*x*y+yz
+210 x=xt
+220 NEXT i
+230 IF i<8 THEN INK i:ELSE INK i-8
+240 LINE px*5,py*5 TO px*5+5,py*5+5
+250 LINE px*5,py*5+5 TO px*5+5,py*5
+260 NEXT px
+270 NEXT py
+280 PRINT #0,DATE-t
