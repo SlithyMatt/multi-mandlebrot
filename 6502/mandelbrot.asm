@@ -1,9 +1,17 @@
 .include "fixedpt.asm"
 
+.ifndef MAND_XMIN
 MAND_XMIN = $FD80 ; -2.5
+.endif
+.ifndef MAND_XMAX
 MAND_XMAX = $0380 ; 3.5
+.endif
+.ifndef MAND_YMIN
 MAND_YMIN = $FF00 ; -1
+.endif
+.ifndef MAND_YMAX
 MAND_YMAX = $0200 ; 2
+.endif
 
 .ifndef MAND_WIDTH
 MAND_WIDTH = 32
@@ -15,6 +23,15 @@ MAND_HEIGHT = 22
 MAND_MAX_IT = 15
 .endif
 
+.ifdef __NES__
+mand_x0     = $08
+mand_y0     = $0A
+mand_x      = $0C
+mand_y      = $0E
+mand_x2     = $10
+mand_y2     = $12
+mand_xtemp  = $14
+.else
 mand_x0:       .word 0
 mand_y0:       .word 0
 mand_x:        .word 0
@@ -22,6 +39,7 @@ mand_y:        .word 0
 mand_x2:       .word 0
 mand_y2:       .word 0
 mand_xtemp:    .word 0
+.endif
 
 mand_get:   ; Input:
             ;  X,Y - bitmap coordinates
@@ -98,11 +116,9 @@ mand_get:   ; Input:
    FP_LDB mand_x0    ; B = X0
    jsr fp_add        ; C = X^2 - Y^2 + X0
    FP_STC mand_xtemp ; Xtemp = C
-   lda #2
-   jsr fp_lda_byte   ; A = 2
-   FP_LDB mand_x     ; B = X
-   jsr fp_multiply   ; C = 2*X
-   FP_TCA            ; A = C (2*X)
+   FP_LDA mand_x     ; A = X
+   asl FP_A
+   rol FP_A+1        ; A = 2*X
    FP_LDB mand_y     ; B = Y
    jsr fp_multiply   ; C = 2*X*Y
    FP_TCA            ; A = C (2*X*Y)

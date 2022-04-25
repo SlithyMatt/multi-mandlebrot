@@ -1,0 +1,116 @@
+!ifndef MEGA65DEFS {
+MEGA65DEFS = 1
+
+DMA_COPY  = %00000000
+DMA_MIX   = %00000001
+DMA_SWAP  = %00000010
+DMA_FILL  = %00000011
+DMA_CHAIN = %00000100
+
+M65_SCREEN_BANK = 0
+M65_COLRAM_BANK = 1
+
+;; DMA
+
+!address {
+DMA_ADDRLSB_TRIG  = $d700
+DMA_ADDRMSB       = $d701
+DMA_ADDRBANK      = $d702
+DMA_CONTROL       = $d703 ; bit 1 = Enable F018b mode
+DMA_ADDRLSB_ETRIG = $d705 ; LSB for MEGA65 DMA Extensions
+M65_SCREEN        = $0800
+M65_COLRAM        = $f800
+}
+
+;; VIC-III
+
+; VICIII_ROMMAP bits
+VICIII_ROM_E000   = $80
+VICIII_ROM_C65CHR = $40
+VICIII_ROM_C000   = $20
+VICIII_ROM_A000   = $10
+VICIII_ROM_8000   = $08
+VICIII_ROM_PAL16  = $04
+VICIII_ROM_EXTSYN = $02
+VICIII_ROM_CRAM2K = $01
+
+; VICIII_SCRNMODE bits
+VICIII_SM_H640    = $80
+VICIII_SM_FAST    = $40
+VICIII_SM_ATTR    = $20
+VICIII_SM_BPM     = $10
+VICIII_SM_V400    = $08
+VICIII_SM_H1280   = $04
+VICIII_SM_MONO    = $02
+VICIII_SM_INT     = $01
+
+!address {
+VICIII_ROMMAP    = $D030     ; ROME CROM9 ROMC ROMA ROM8 PAL   EXTSYNC CRAM2K
+VICIII_SCRNMODE  = $D031     ; H640 FAST  ATTR BPM  V400 H1280 MONO    INT
+VICIII_PALRED    = $D100
+VICIII_PALGRN    = $D200
+VICIII_PALBLU    = $D300
+}
+
+;; VIC-IV
+
+; VICIV_SCRNMODE bits
+VICIV_SM_ALPHEN  = $80
+VICIV_SM_VFAST   = $40
+VICIV_SM_PALEMU  = $20
+VICIV_SM_SPR640  = $10
+VICIV_SM_SMTH    = $08
+VICIV_SM_FCLRHI  = $04
+VIVIV_SM_FCLRLO  = $02
+VICIV_SM_CHR16   = $01
+
+!address {
+VICIV_BORDERCOL  = $D020
+VICIV_SCREENCOL  = $D021
+VICIV_KEY        = $D02F
+VICIV_SCRNMODE   = $D054     ; ALPHEN VFAST PALEMU SPR640 SMTH FCLRHI FCLRLO CHR16
+VICIV_LINESTEPLO = $D058
+VICIV_LINESTEPHI = $D059
+VICIV_CHRCOUNT   = $D05E     ; how many characters to draw
+VICIV_SCRNPTR1   = $D060
+VICIV_SCRNPTR2   = $D061
+VICIV_SCRNPTR3   = $D062
+VICIV_SCRNPTR4   = $D063     ; EXGLYPH(1), EMPTY(1), CHRCOUNT(2), SCRNPTR(4)
+VICIV_COLPTRLO   = $D064
+VICIV_COLPTRHI   = $D065
+VICIV_CHARPTRLO  = $D068
+VICIV_CHARPTRHI  = $D069
+VICIV_CHARPTRBN  = $D06A
+VICIV_PALETTE    = $D070     ; MAPEDPAL(2) BTPALSEL(2) SPRPALSEL(2) ABTPALSEL(2)
+}
+
+;; C65 4551 UART
+!address {
+UART_ASCIIKEY    = $D610     ; hardware accelerated keyboard scanner
+}
+
+;; MATH ACCL
+!address {
+MATH_BUSY    = $D70F
+MATH_IN_A    = $D770
+MATH_IN_B    = $D774
+MATH_MULTOUT = $D778
+MATH_DIVOUT  = $D768
+}
+
+!macro nyb2hexstr .v {
+        !if (.v & $0f) < 10 {
+                !text (.v & $0f) + $30
+        } else {
+                !text (.v & $0f) + $37
+        }
+}
+
+!macro label2hexstr .v {
+        +nyb2hexstr (>.v >> 4)
+        +nyb2hexstr >.v
+        +nyb2hexstr (<.v >> 4)
+        +nyb2hexstr <.v
+}
+
+}

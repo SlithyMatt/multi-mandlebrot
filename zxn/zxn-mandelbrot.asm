@@ -3,28 +3,24 @@
    org $8000
 
 start:
-	call stiple
-	jp init
+   jp init
 
-	include "../Z80n/mandelbrot.asm"
-	include "stiple.asm"
+   include "../Z80n/mandelbrot.asm"
 
-ROM_CLS           = $0DAF
-
+SCREEN_PIXELS     = $4000
 COLOR_MAP         = $5800
 
 
 i_result: db 0
 
 color_codes:
-   db 0,8,16,24,32,40,48,56
-   db 72,80,88,96,104,112,120
+   db 8,16,24,32,40,48,56,72
+   db 80,88,96,104,112,120,0
 
 init:
-  nextreg $07,$03
+   nextreg $07,$03      ; set to 28 MHz
    exx                  ; save hl' register on stack
-	push hl              ; to correct return into basic
-;;;    call ROM_CLS
+   push hl              ; to correct return into basic
    ld bc,0              ; X = 0, Y = 0
 .loopm:
    call mand_get
@@ -47,7 +43,6 @@ init:
    jp nc,.loopm1
    inc h
 .loopm1:
-   ;add ix,de            ; IX = &(color code for I)
    ld a,(hl)            ; A = color code for I
    ld (de),a            ; set color code
    inc b                ; increment X
@@ -60,9 +55,9 @@ init:
    cp c
    jp nz,.loopm         ; loop until Y = height
    pop hl               ; restore hl' register
-	exx                  ; from stack
+   exx                  ; from stack
 .loop_end:
-	jp .loop_end
+   jp .loop_end
    ret
 
 
@@ -70,6 +65,6 @@ init:
 LENGTH      = $ - start
 
 ;;; option 3: nex
-	SAVENEX OPEN "man.nex",start
-	SAVENEX AUTO
-	SAVENEX CLOSE
+   SAVENEX OPEN "man.nex",start
+   SAVENEX AUTO
+   SAVENEX CLOSE

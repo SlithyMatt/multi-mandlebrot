@@ -71,7 +71,7 @@ fp_floor: ; FP_C = floor(FP_C)
    jp z,.zerofrac
    ld a,0
    cp l
-   jp z, .zerofrac
+   ret z
    dec h
 .zerofrac:
    ld l,0
