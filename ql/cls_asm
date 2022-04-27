@@ -1,0 +1,14 @@
+        title cls
+	; clear screen
+	xdef cls
+        section code
+cls:
+	moveq #0,d0
+        move.l #$20000,a0
+loop:
+        move.l d0,(a0)+
+        cmp.l #$28000,a0
+        bne loop
+        rts
+	end
+	

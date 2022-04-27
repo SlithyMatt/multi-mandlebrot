@@ -1,0 +1,33 @@
+	section code
+	xdef plot
+plot:
+	move.w 4(a7),d2 ; px
+	move.w 6(a7),d1 ; py
+	move.w 8(a7),d0 ; i
+	asl.w #2,d0
+	lea colors(PC),a0
+	move.l 0(a0,d0.w),d6
+	move.l 64(a0,d0.w),d7
+	mulu #$500,d1
+	asl.w #2,d2
+	add.w d2,d1
+	addi.w #128,d1
+	move.l #$20000,a0
+	moveq #5,d0
+loop:
+	move.l d6,-128(a0,d1.w)
+	move.l d7,0(a0,d1.w)
+	addi.w #256,d1
+	subq.w #1,d0
+	bne loop
+	rts
+colors: dc.l $00000000,$00110011,$00550055,$00660066
+	dc.l $00aa00aa,$00bb00bb,$00ff00ff,$22cc22cc
+	dc.l $aa00aa00,$aa11aa11,$aa55aa55,$aa66aa66
+	dc.l $aaaaaaaa,$aabbaabb,$aaffaaff,$88cc88cc
+	dc.l $00000000,$00440044,$00550055,$00990099
+	dc.l $00aa00aa,$00ee00ee,$00ff00ff,$88338833
+	dc.l $aa00aa00,$aa44aa44,$aa55aa55,$aa99aa99
+	dc.l $aaaaaaaa,$aaeeaaee,$aaffaaff,$22332233
+	end
+	
