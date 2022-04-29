@@ -1,16 +1,16 @@
-	.global cls,mandel_pt,plot
-	.global mandelbrot
+	.global cls,mandelbrot,plot
+	.global start
 	; px: (a7)
 	; py: 2(a7)
 	; i:  4(a7)
-mandelbrot:
+start:	
 	subq.l #6,a7
 	bsr cls
 	moveq #0,d0
 	move.w d0,2(a7) ; y
 loop:
 	move.w d0,(a7) ; x
-	bsr mandel_pt
+	bsr mandelbrot
 	bsr plot
 	move.w (a7),d0
 	addq.w #1,d0

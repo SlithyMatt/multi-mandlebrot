@@ -1,4 +1,4 @@
 100 a=respr(512)
-110 lbytes mdv1_driver_bin,a
+110 lbytes mdv1_mandelbrot_bin,a
 120 call a
 130 print a

@@ -1,5 +1,5 @@
-	.global mandel_pt
-mandel_pt:
+	.global mandelbrot
+mandelbrot:
 	move.w 4(a7),d0
 	mulu 6(a7),d0
 	andi.w #0x000f,d0
