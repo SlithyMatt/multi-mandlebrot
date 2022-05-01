@@ -37,29 +37,17 @@ mand_get:
         ;  X,Y - bitmap coordinates
         ; Output: A - # iterations executed (0 to MAND_MAX_IT-1)
 	lda 2,s
-*	ifdef divide
 	FP_LD_BYTE
 	FP_MULTIPLY #MAND_XMAX  ; C = A*B
 	FP_DIVIDE #MAND_WIDTH    ; C = A/B
 	FP_ADD #MAND_XMIN       ; C = A+B (scaled X)
-*	else
-*	asla
-*	ldx #xs
-*	ldd a,x
-*	endif
 	FP_ST mand_x0    ; x0 = C
 
 	lda 3,s
-*	ifdef divide
 	FP_LD_BYTE   ; A = Y coordinate
 	FP_MULTIPLY #MAND_YMAX  ; C = A*B
 	FP_DIVIDE   #MAND_HEIGHT  ; C = A/B
 	FP_ADD #MAND_YMIN       ; C = A+B (scaled Y)
-*	else
-*	asla
-*	ldx #ys
-*	ldd a,x
-*	endif
 	FP_ST mand_y0    ; y0 = C
 
 	endif			; divide
@@ -93,7 +81,7 @@ mand_get:
 	lda FP_T7
 	leay 1,y
 	sta FP_T7
-	cmpy #16
+	cmpy #MAND_MAX_IT
 	bne @loop
 @dec_i:
 	lda FP_T7
@@ -101,16 +89,3 @@ mand_get:
 	decb
 	stb 4,s
 	rts
-
-*	ifndef divide
-*xs:
-*	.word $fd80,$fd9c,$fdb8,$fdd4,$fdf0,$fe0c,$fe28,$fe44
-*	.word $fe60,$fe7c,$fe98,$feb4,$fed0,$feec,$ff08,$ff24
-*	.word $ff40,$ff5c,$ff78,$ff94,$ffb0,$ffcc,$ffe8,$0004
-*	.word $0020,$003c,$0058,$0074,$0090,$00ac,$00c8,$00e4
-*ys:
-*	.word $ff00,$ff17,$ff2e,$ff45,$ff5d,$ff74,$ff8b,$ffa2
-*	.word $ffba,$ffd1,$ffe8
-*	.word $0000,$0017,$002e,$0045,$005d,$0074,$008b,$00a2
-*	.word $00ba,$00d1,$00e8
-*	endif

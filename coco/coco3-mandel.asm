@@ -14,13 +14,15 @@ start:
 	lda $ff90
 	anda #$7f
 	sta $ff90
-	lda $ff98
-	anda #$78
-	ora #$83
+*	lda $ff98
+*	anda #$78
+*	ora #$83
+	lda #$83		; 24 rows (/8), 60Hz, Graphics
 	sta $ff98
-	lda $ff99
-	anda #$80
-	ora #$02
+*	lda $ff99
+*	anda #$80
+*	ora #$02
+	lda #$0a		; 192 lines, 32 bytes per row
 	sta $ff99
 	;; set video address ($71200=$1200)
 	clr $ff9c
@@ -78,29 +80,17 @@ plot:
 	lsra
 	rorb
 	addb 2,s
-	lsra
-	rorb
 	leax d,x
-	lda 2,s
-	anda #$01
-	beq @hi
-@lo:
-	ldb ,x
-	andb #$f0
-	addb 4,s
-	stb ,x
-	rts
-@hi:
-	lda ,x
+	lda 4,s
+	lsla
+	lsla
+	lsla
+	lsla
+	sta FP_T7
+	lda 4,s
 	anda #$0f
+	adda FP_T7 
 	sta ,x
-	ldb 4,s
-	aslb
-	aslb
-	aslb
-	aslb
-	addb ,x
-	stb ,x
 	rts
 
 colors:

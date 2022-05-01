@@ -56,10 +56,10 @@ FP_MUL2 macro			; d=2*d
 FP_NEG macro			; d=-d
 	ifdef h6309
 	negd
-	else ; m6809
+	else ; m6809 - 4/8
 	coma
-	comb
-	addd #1
+	negb
+	adca #0
 	endif h6309
 	endm
 
@@ -106,7 +106,7 @@ fp_mul: ; d = d * x ; FP_XT overflow
 	lda FP_AA+1
 	ldb FP_BA+1
 	mul
-	addd #$0080 ; round 
+*	addd #$0080 ; round 
 	sta FP_RE+1
 	;; h1*l2
 	lda FP_AA

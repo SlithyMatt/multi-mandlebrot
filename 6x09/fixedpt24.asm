@@ -1,454 +1,255 @@
-.ifndef FIXEDPT_INC
-FIXEDPT_INC = 1
+;;; 8.8 fixed point routines for m6809 and h6309
+;;; d (a:b) is used as the accumulator
+;;; x is a temporary register
+;;; all other registers are preserved
+;;; 16 bytes of scratch space on direct page
+	ifndef FIXEDPT_INC
+FIXEDPT_INC equ 1
 
-.macpack        cpu
+FP24_ACC	equ $10			;  a
+FP24_OP	equ $13			;  b
+FP_AACC	equ $16			; |a|
+FP_AOP	equ $19			; |b|
+FP_XT	equ $1c			; extra (overflow/remainder)
+FP_RE	equ $1f			; result
 
-.ifdef __CX16__
-FP_A = $28
-FP_B = $2B
-FP_C = $2E
-FP_R = $31
-.endif
+FP24_LD_WORD macro 		; (u)=(ea) ; int
+	ldd \1
+	std FP24_ACC
+	clr FP24_ACC+1
+	ldu #FP24_ACC
+	endm
+	
+FP24_SUBTRACT macro		; (u)=(x)-(y)
+	ldd 1,x
+	subd 1,y
+	std 1,u
+	lda ,x
+	sbca ,x
+	sta ,u
+	endm
 
-.ifdef __C64__
-FP_A = $22
-FP_B = $25
-FP_C = $28
-FP_R = $FB
-.endif
+FP24_ADD macro			; (u)=(x)+(y)
+	ldd 1,x
+	addd 1,y
+	std 1,u
+	lda ,x
+	adca ,y
+	sta ,u
+	endm
 
-fp_scratch: .res 3
+FP24_NEG macro			; (ea)=-(ea)
+	com \1
+	com \1+1
+	neg \1+2
+	ldd #0
+	adcb \1+1
+	adca \1
+	std \1
+	endm
 
-.macro FP_LDA_WORD word_int
-.if (.cpu .bitand ::CPU_ISET_65SC02)
-   stz FP_A
-.else
-   lda #0
-   sta FP_A
-.endif
-   lda word_int
-   sta FP_A+1
-   lda word_int+1
-   sta FP_A+2
-.endmacro
+FP24_ABS macro			; acc=|acc|
+	tst \1
+	bpl out@
+	FP24_NEG
+out@:
+	endm
+	
+FP24_MULTIPLY macro		; (u)=(x)*(y)
+	leas -8,s
+	stu 6,s
+	leau ,s
+	lbsr muls24_48
+	leau 6,s
+	ldd 2,s
+	std ,x
+	lda 4,s
+	sta 2,u
+	leas 8,s
+	endm
 
+FP24_DIVIDE macro 		; (u)=(x)/(y) 
+	ldx \1
+	lbsr fp_div
+	endm
+	
+fp_div: ; d=d/x ; remainder in FP24_XT
+	FP24_ST FP24_A
+	FP24_ABS
+	FP24_ST FP24_AA
+	tfr x,d
+	FP24_ST FP24_B
+	FP24_ABS
+	FP24_ST FP24_BA
 
-.macro FP_LDB_WORD word_int
-.if (.cpu .bitand ::CPU_ISET_65SC02)
-   stz FP_B
-.else
-   lda #0
-   sta FP_B
-.endif
-   lda word_int
-   sta FP_B+1
-   lda word_int+1
-   sta FP_B+2
-.endmacro
-
-.macro FP_LDA addr
-   lda addr
-   sta FP_A
-   lda addr+1
-   sta FP_A+1
-   lda addr+2
-   sta FP_A+2
-.endmacro
-
-.macro FP_LDB addr
-   lda addr
-   sta FP_B
-   lda addr+1
-   sta FP_B+1
-   lda addr+2
-   sta FP_B+2
-.endmacro
-
-.macro FP_LDA_IMM val
-   lda #<val
-   sta FP_A
-   lda #>val
-   sta FP_A+1
-   lda #^val
-   sta FP_A+2
-.endmacro
-
-.macro FP_LDB_IMM val
-   lda #<val
-   sta FP_B
-   lda #>val
-   sta FP_B+1
-   lda #^val
-   sta FP_B+2
-.endmacro
-
-.macro FP_LDA_IMM_INT val
-.if (.cpu .bitand ::CPU_ISET_65SC02)
-   stz FP_A
-.else
-   lda #0
-   sta FP_A
-.endif
-   lda #<val
-   sta FP_A+1
-   lda #>val
-   sta FP_A+2
-.endmacro
-
-.macro FP_LDB_IMM_INT val
-.if (.cpu .bitand ::CPU_ISET_65SC02)
-   stz FP_B
-.else
-   lda #0
-   sta FP_B
-.endif
-   lda #<val
-   sta FP_B+1
-   lda #>val
-   sta FP_B+2
-.endmacro
-
-.macro FP_STC addr
-   lda FP_C
-   sta addr
-   lda FP_C+1
-   sta addr+1
-   lda FP_C+2
-   sta addr+2
-.endmacro
-
-fp_floor: ; FP_C = floor(FP_C)
-   bit FP_C+2
-   bpl @zerofrac
-   lda FP_C
-   cmp #0
-   beq @zerofrac
-   lda FP_C+1
-   sec
-   sbc #1
-   sta FP_C+1
-   lda FP_C+2
-   sbc #0
-   sta FP_C+2
-@zerofrac:
-.if (.cpu .bitand ::CPU_ISET_65SC02)
-   stz FP_C
-.else
-   lda #0
-   sta FP_C
-.endif
-   rts
-
-.macro FP_TCA ; FP_A = FP_C
-   lda FP_C
-   sta FP_A
-   lda FP_C+1
-   sta FP_A+1
-   lda FP_C+2
-   sta FP_A+2
-.endmacro
-
-.macro FP_TCB ; FP_B = FP_C
-   lda FP_C
-   sta FP_B
-   lda FP_C+1
-   sta FP_B+1
-   lda FP_C+2
-   sta FP_B+2
-.endmacro
-
-fp_subtract: ; FP_C = FP_A - FP_B
-   lda FP_A
-   sec
-   sbc FP_B
-   sta FP_C
-   lda FP_A+1
-   sbc FP_B+1
-   sta FP_C+1
-   lda FP_A+2
-   sbc FP_B+2
-   sta FP_C+2
-   rts
-
-fp_add: ; FP_C = FP_A + FP_B
-   lda FP_A
-   clc
-   adc FP_B
-   sta FP_C
-   lda FP_A+1
-   adc FP_B+1
-   sta FP_C+1
-   lda FP_A+2
-   adc FP_B+2
-   sta FP_C+2
-   rts
-
-fp_divide: ; FP_C = FP_A / FP_B; FP_R = FP_A % FP_B
-.if (.cpu .bitand ::CPU_ISET_65SC02)
-   phx
-   phy
-.else
-   txa
-   pha
-   tya
-   pha
-.endif
-   lda FP_B
-   pha
-   lda FP_B+1
-   pha
-   lda FP_B+2
-   pha ; preserve original B on stack
-   bit FP_A+2
-   bmi @abs_a
-   lda FP_A
-   sta FP_C
-   lda FP_A+1
-   sta FP_C+1
-   lda FP_A+2
-   sta FP_C+2
-.if (.cpu .bitand ::CPU_ISET_65SC02)
-   bra @check_sign_b
-.else
-   jmp @check_sign_b
-.endif
-@abs_a:
-   lda #0
-   sec
-   sbc FP_A
-   sta FP_C
-   lda #0
-   sbc FP_A+1
-   sta FP_C+1
-   lda #0
-   sbc FP_A+2
-   sta FP_C+2 ; C = |A|
-@check_sign_b:
-   bit FP_B+2
-   bpl @shift_b
-   lda #0
-   sec
-   sbc FP_B
-   sta FP_B
-   lda #0
-   sbc FP_B+1
-   sta FP_B+1
-   lda #0
-   sbc FP_B+2
-   sta FP_B+2
-@shift_b:
-   lda FP_B+1
-   sta FP_B
-   lda FP_B+2
-   sta FP_B+1
-   lda #0
-   sta FP_B+2
-.if (.cpu .bitand ::CPU_ISET_65SC02)
-   stz FP_R
-   stz FP_R+1
-   stz FP_R+2
-.else
-   lda #0
-   sta FP_R
-   sta FP_R+1
-   sta FP_R+2
-.endif
-   ldx #24     ;There are 24 bits in C
+ 	ldb FP24_BA+1
+ 	clra
+ 	FP24_ST FP24_BA
+ 	clrb
+ 	std FP24_XT	
+ 	ldx #16     ;There are 16 bits in C
 @loop1:
-   asl FP_C    ;Shift hi bit of C into REM
-   rol FP_C+1  ;(vacating the lo bit, which will be used for the quotient)
-   rol FP_C+2
-   rol FP_R
-   rol FP_R+1
-   rol FP_R+2
-   lda FP_R
-   sec         ;Trial subtraction
-   sbc FP_B
-   tay
-   lda FP_R+1
-   sbc FP_B+1
-   sta fp_scratch
-   lda FP_R+2
-   sbc FP_B+2
-   bcc @loop2  ;Did subtraction succeed?
-   sta FP_R+2   ;If yes, save it
-   lda fp_scratch
-   sta FP_R+1
-   sty FP_R
-   inc FP_C    ;and record a 1 in the quotient
+	FP24_LD FP24_AA
+	aslb    ;Shift hi bit of C into REM
+	rola  ;(vacating the lo bit, which will be used for the quotient)
+	FP24_ST FP24_AA
+	FP24_LD FP24_XT
+	rolb
+	rola
+	FP24_ST FP24_XT
+	subd FP24_B ;Trial subtraction
+	blt @loop2  ;Did subtraction succeed?
+	std FP24_XT
+	inc FP24_AA+1    ;and record a 1 in the quotient
 @loop2:
-   dex
-   bne @loop1
-   pla
-   sta FP_B+2
-   pla
-   sta FP_B+1
-   pla
-   sta FP_B
-   bit FP_B+2
-   bmi @check_cancel
-   bit FP_A+2
-   bmi @negative
-   jmp @return
-@check_cancel:
-   bit FP_A+2
-   bmi @return
-@negative:
-   lda #0
-   sec
-   sbc FP_C
-   sta FP_C
-   lda #0
-   sbc FP_C+1
-   sta FP_C+1
-   lda #0
-   sbc FP_C+2
-   sta FP_C+2
-@return:
-.if (.cpu .bitand ::CPU_ISET_65SC02)
-   ply
-   plx
-.else
-   pla
-   tay
-   pla
-   tax
-.endif
-   rts
+ 	leax -1,x	
+ 	bne @loop1
+	lda FP24_A
+	eora FP24_B
+	blt @retneg
+	FP24_LD FP24_AA
+	rts
+@retneg:
+	FP24_LD FP24_AA
+	FP24_NEG
+	rts
 
-fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
-.if (.cpu .bitand ::CPU_ISET_65SC02)
-   phx
-   phy
-.else
-   txa
-   pha
-   tya
-   pha
-.endif
-   ; push original A and B to stack
-   lda FP_A
-   pha
-   lda FP_A+1
-   pha
-   lda FP_A+2
-   pha
-   lda FP_B
-   pha
-   lda FP_B+1
-   pha
-   lda FP_B+2
-   pha
-   bit FP_A+2
-   bpl @check_sign_b
-   lda #0
-   sec
-   sbc FP_A
-   sta FP_A
-   lda #0
-   sbc FP_A+1
-   sta FP_A+1
-   lda #0
-   sbc FP_A+2
-   sta FP_A+2 ; A = |A|
-@check_sign_b:
-   bit FP_B+2
-   bpl @init_c
-   lda #0
-   sec
-   sbc FP_B
-   sta FP_B
-   lda #0
-   sbc FP_B+1
-   sta FP_B+1
-   lda #0
-   sbc FP_B+2
-   sta FP_B+2 ; B = |B|
-@init_c:
-   lda #0
-   sta FP_R
-   sta FP_R+1
-   sta FP_R+2
-   sta FP_C
-   sta FP_C+1
-   sta FP_C+2
-   ldx #16
-@loop1:
-   lsr FP_B+2
-   ror FP_B+1
-   ror FP_B
-   bcc @loop2
-   clc
-   lda FP_A
-   adc FP_R
-   sta FP_R
-   lda FP_R+1
-   adc FP_A+1
-   sta FP_R+1
-   lda FP_R+2
-   adc FP_A+2
-   sta FP_R+2
-@loop2:
-   ror FP_R+2
-   ror FP_R+1
-   ror FP_R
-   ror FP_C+2
-   ror FP_C+1
-   ror FP_C
-   dex
-   bne @loop1
-   ldx #16
-@loop3:
-   lsr FP_R+2
-   ror FP_R+1
-   ror FP_R
-   ror FP_C+2
-   ror FP_C+1
-   ror FP_C
-   dex
-   bne @loop3
-   ; restore A and B
-   pla
-   sta FP_B+2
-   pla
-   sta FP_B+1
-   pla
-   sta FP_B
-   pla
-   sta FP_A+2
-   pla
-   sta FP_A+1
-   pla
-   sta FP_A
-   bit FP_B+2
-   bmi @check_cancel
-   bit FP_A+2
-   bmi @negative
-   jmp @return
-@check_cancel:
-   bit FP_A+2
-   bmi @return
-@negative:
-   lda #0
-   sec
-   sbc FP_C
-   sta FP_C
-   lda #0
-   sbc FP_C+1
-   sta FP_C+1
-   lda #0
-   sbc FP_C+2
-   sta FP_C+2
-@return:
-.if (.cpu .bitand ::CPU_ISET_65SC02)
-   ply
-   plx
-.else
-   pla
-   tay
-   pla
-   tax
-.endif
-   rts
+muls24_48:
+	pshs x,y
+	leas -6,s
+	ldd ,x
+	bpl xpos@
+	coma
+	comb
+	std ,s
+	lda 2,x
+	nega
+	sta 2,s
+	ldd ,s
+	adcb
+	adca
+	std ,s
+	bra y@
+xpos@:
+	std ,s
+	lda 2,x
+	sta 2,s
+y@:	
+	ldd ,y
+	bpl xpos@
+	coma
+	comb
+	std 3,s
+	lda 2,y
+	nega
+	sta 5,s
+	ldd ,s
+	adcb
+	adca
+	std 3,s
+	bra mul@
+ypos@:
+	std 3,s
+	lda 2,y
+	sta 5,s
+mul@:
+	leax ,s
+	leay 3,s
+	bsr mulu24_48
+	leas 6,s
+	puls y,x
+	lda ,x
+	eora ,y
+	bpl return@
+	com ,u
+	com 1,u
+	com 2,u
+	com 3,u
+	com 4,u
+	neg 5,u
+	ldd #0
+	adcb 4,u
+	adca 3,u
+	std 3,u
+	ldd #0
+	adcb 2,u
+	adca 1,u
+	std 1,u
+	lda #0
+	adca ,u
+	sta ,u
+return@:	
+	rts
+	
+mulu24_48:
+	;; x points to op1
+	;; y points to op2
+	;; u points to dest
+	ldd #0
+	std ,u
+	std 2,u
+	leau 4,u
+	;; 4
+	lda 2,x
+	ldb 2,y
+	mul
+	std ,u-
+	;; 3
+	lda 1,x
+	ldb 2,y
+	mul
+	addd ,u
+	std ,u
+	lda 2,y
+	ldb 1,x
+	mul
+	addd ,u
+	std ,u-
+	lda #0
+	adca #0
+	sta ,u
+	;; 2
+	lda ,x
+	ldb 2,y
+	mul
+	addd ,u
+	std ,u
+	lda 1,x
+	ldb 1,y
+	mul
+	addd ,u
+	std ,u
+	lda #0
+	adca -1,u
+	sta -1,u
+	lda 2,x
+	ldb ,y
+	mul
+	addd ,u
+	std ,u-
+	lda #0
+	adca ,u
+	sta ,u
+	;; 1
+	lda ,x
+	ldb 1,y
+	mul
+	addd ,u
+	std ,u
+	lda 1,x
+	ldb ,y
+	mul
+	addd ,u
+	std ,u-
+	lda #0
+	adca #0
+	sta ,u
+	;; 0
+	lda ,x
+	ldb ,y
+	mul
+	addd ,u
+	std ,u
+	rts
+	endif ; !FIXEDPT_INC
 
-.endif
