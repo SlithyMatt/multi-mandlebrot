@@ -58,8 +58,8 @@ FP_NEG macro			; d=-d
 	negd
 	else ; m6809 - 4/8
 	coma
-	negb
-	adca #0
+	comb
+	addd #1
 	endif h6309
 	endm
 

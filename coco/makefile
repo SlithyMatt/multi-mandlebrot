@@ -1,4 +1,5 @@
 TGTS=mandelbr.dsk mandelbr.vdk
+SPT=../6x09/mandelbrot.asm ../6x09/fixedpt.asm
 
 all: $(TGTS)
 
@@ -18,16 +19,16 @@ mandelbr.vdk: MANDELD.BIN MANDELDH.BIN
 	dragondos write $@ MANDELH.BIN MANDELDH.BIN
 	dragondos write $@ MANDEL.BAS dragon-mandel_tok.bas -basic
 
-MANDEL.BIN: coco12-mandel.asm
+MANDEL.BIN: coco12-mandel.asm $(SPT)
 	lwasm -o $@ $<
 
-MANDELH.BIN: coco12-mandel.asm
+MANDELH.BIN: coco12-mandel.asm $(SPT)
 	lwasm -Dh6309 -o $@ $<
 
-MANDEL3.BIN: coco3-mandel.asm
+MANDEL3.BIN: coco3-mandel.asm $(SPT)
 	lwasm -o $@ $<
 
-MANDEL3H.BIN: coco3-mandel.asm
+MANDEL3H.BIN: coco3-mandel.asm $(SPT)
 	lwasm -Dh6309 -o $@ $<
 
 MANDELD.BIN: MANDEL.BIN

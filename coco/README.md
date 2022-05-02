@@ -4,4 +4,4 @@ BASIC: Fast (Slow)
 
 Assembly: 6809 (6309)
 - Color Computer 1/2 or Dragon: 6.3 (2.7)
-- Color Computer 3:   		3.3 (1.1)
+- Color Computer 3:   		3.3 (1.2)
