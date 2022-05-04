@@ -1,5 +1,4 @@
 	include "fixedpt24.asm"
-	include "fixedpt.asm"
 
 	ifndef MAND_XMIN
 MAND_XMIN equ $FFFD80 ; -2.5
@@ -32,38 +31,46 @@ mand_x2:	equ $e8
 mand_y2:	equ $ea
 mand_xtemp:	equ $ec
 mand_s:		equ $ee
-	
+
+XMIN:	.word MAND_XMIN
+XMAX:	.word MAND_XMAX
+XWID:	.word MAND_WIDTH
+YMIN:	.word MAND_YMIN
+YMAX:	.word MAND_YMAX
+YHGT:	.word MAND_HEIGHT
+
 mand_get:
 	; Input:
-        ;  X,Y - bitmap coordinates
-        ; Output: A - # iterations executed (0 to MAND_MAX_IT-1)
+        ;  X=(2,s),Y=(4,s) - bitmap coordinates
+        ; Output: A=(6,s) - # iterations executed (0 to MAND_MAX_IT-1)
 	ldd 2,s
-	FP24_LD_WORD
-	FP24_MULTIPLY #MAND_XMAX  ; C = A*B
-	FP24_DIVIDE #MAND_WIDTH    ; C = A/B
-	FP24_ADD #MAND_XMIN       ; C = A+B (scaled X)
-	FP24_FP
+	ldy #XMAX
+	ldu #FP_T2
+	FP24_MULTIPLY ; (u) = d*(y)
+	ldy #XWID
+	FP24_DIVIDE ; d = (u)/(y)
+	FP_ADD #MAND_XMIN       ; C = A+B (scaled X)
 	FP_ST mand_x0    ; x0 = C
 
-	lda 4,s
-	FP24_LD_WORD   ; A = Y coordinate
-	FP24_MULTIPLY #MAND_YMAX  ; C = A*B
-	FP24_DIVIDE   #MAND_HEIGHT  ; C = A/B
-	FP24_ADD #MAND_YMIN       ; C = A+B (scaled Y)
-	FP24_FP
+	ldd 4,s
+	ldy #YMAX
+	ldu #FP_T2
+	FP24_MULTIPLY ; (u) = d*(y)
+	ldy #YHGT
+	FP24_DIVIDE ; d = (u)/(y)
+	FP_ADD #MAND_YMIN       ; C = A+B (scaled X)
 	FP_ST mand_y0    ; y0 = C
 
-	endif			; divide
 	ldd #0
 	std mand_x
 	std mand_y
 	ldy #0
 @loop:
 	FP_LD mand_x
-	FP_MULTIPLY mand_x
+	FP_SQUARE
 	FP_ST mand_x2
 	FP_LD mand_y
-	FP_MULTIPLY mand_y
+	FP_SQUARE
 	FP_ST mand_y2
 	FP_ADD mand_x2
 	FP_COMPARE #$0400

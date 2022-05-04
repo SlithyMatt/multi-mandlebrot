@@ -6,14 +6,20 @@
 	ifndef FIXEDPT_INC
 FIXEDPT_INC equ 1
 
-FP_A	equ $f0			;  a
-FP_B	equ $f2			;  b
-FP_AA	equ $f4			; |a|
-FP_BA	equ $f6			; |b|
-FP_XT	equ $f8			; extra (overflow/remainder)
-FP_RE	equ $fa			; result
-FP_T6	equ $fc
-FP_T7	equ $fe
+FP_T0:	
+FP_A:	equ $f0			;  a
+FP_T1:	
+FP_B:	equ $f2			;  b
+FP_T2:	
+FP_AA:	equ $f4			; |a|
+FP_T3:	
+FP_BA:	equ $f6			; |b|
+FP_T4:	
+FP_XT:	equ $f8			; extra (overflow/remainder)
+FP_T5:	
+FP_RE:	equ $fa			; result
+FP_T6:	equ $fc
+FP_T7:	equ $fe
 
 FP_LD_BYTE macro 		; d=a
 	clrb
@@ -84,7 +90,7 @@ FP_MULTIPLY macro		; d=d*(ea)
 	stq FP_RE-1
 	ldd FP_RE
 	endm
-	else ; m6809
+	else ; ! h6309 -> m6809
 FP_MULTIPLY macro		; d=d*(ea)
 	ldx \1
 	lbsr fp_mul
@@ -118,7 +124,7 @@ fp_mul: ; d = d * x ; FP_XT overflow
 	lda FP_AA+1
 	ldb FP_BA
 	mul
-	addd FP_RE
+	addd FP_RE 		; can't overflow
 	std FP_RE
 	;; h1*h2
 	lda FP_AA
@@ -136,9 +142,17 @@ fp_mul: ; d = d * x ; FP_XT overflow
 @retpos:
 	FP_LD FP_RE
 	rts
-	endif h6309
+	endif ; h6309
 	
 FP_DIVIDE macro 		; d=d/(ea) ; remander in FP_RE
+	ifdef h6309
+	tfr d,w
+	clra
+	clrb
+	divs \1
+	tfr w,d
+	endm
+	else ; ! h6309 -> m6809
 	ldx \1
 	lbsr fp_div
 	endm
@@ -183,4 +197,5 @@ fp_div: ; d=d/x ; remainder in FP_XT
 	FP_LD FP_AA
 	FP_NEG
 	rts
+	endif ; m6809
 	endif ; !FIXEDPT_INC
