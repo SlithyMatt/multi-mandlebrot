@@ -1,21 +1,23 @@
-dim i,px,py:integer
-dim x,y,xz,yz,xt:float
-for px=0 to 21
-for py=0 to 31
+PROCEDURE mandelbrot
+DIM i,px,py:INTEGER
+DIM x,y,xz,yz,xt:FLOAT
+FOR py=0 TO 21
+FOR px=0 TO 31
 xz=px*3.5/32.-2.5
 yz=py*2./22.-1.
 x=0.
 y=0.
-for i=0 to 14
-if x*x+y*y>4 then goto 230
+FOR i=0 TO 14
+IF x*x+y*y>4 THEN
+GOTO 230
+ENDIF
 xt=x*x-y*y+xz
 y=2*x*y+yz
 x=xt
-next i
-230 rem plot
-run gfx2("CURXY",px,py)
-run gfx2("COLOR",1,i)
-print " ";
-next px
-next py
-call gfx2("COLOR",1,0)
+NEXT i
+230 RUN gfx2("CURXY",px,py)
+RUN gfx2("COLOR",0,i)
+PRINT " ";
+NEXT px
+NEXT py
+RUN gfx2("COLOR",0,1)
