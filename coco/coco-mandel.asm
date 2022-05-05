@@ -1,10 +1,27 @@
 	org $0e00
+	ifdef hires
+	include "../6x09/mandelbrot24.asm"
+	ifdef coco3
+	include "gime-hires.asm"
+	else
+	include "m6847-hires.asm"
+	endif
+	else
 	include "../6x09/mandelbrot.asm"
+	ifdef coco3
 	include "gime.asm"
+	else
+	include "m6847.asm"
+	endif
+	endif
 start:
 	pshs cc,dp
 	orcc #$50		; no interrupts
+	ifdef coco3
 	lda #$12		; direct page allowing 1024 bytes for code
+	else
+	lda #$1e
+	endif
 	pshs a
 	puls dp
 	lbsr setup

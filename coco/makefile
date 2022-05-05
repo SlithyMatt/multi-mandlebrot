@@ -13,24 +13,24 @@ mandelbr.dsk: coco12-mandel.bas coco3-mandel.bas MANDEL.BIN MANDELH.BIN MANDEL3.
 	decb copy -b2 MANDEL3.BIN $@,MANDEL3.BIN
 	decb copy -b2 MANDEL3H.BIN $@,MANDEL3H.BIN
 
-mandelbr.vdk: MANDELD.BIN MANDELDH.BIN
+mandelbr.vdk: MANDELD.BIN MANDELDH.BIN dragon-mandel_tok.bas
 	rm -f $@
 	dragondos create $@
 	dragondos write $@ MANDEL.BIN MANDELD.BIN
 	dragondos write $@ MANDELH.BIN MANDELDH.BIN
 	dragondos write $@ MANDEL.BAS dragon-mandel_tok.bas -basic
 
-MANDEL.BIN: coco12-mandel.asm m6847.asm $(SPT)
+MANDEL.BIN: coco-mandel.asm m6847.asm $(SPT)
 	lwasm -o $@ $<
 
-MANDELH.BIN: coco12-mandel.asm m6847.asm $(SPT)
+MANDELH.BIN: coco-mandel.asm m6847.asm $(SPT)
 	lwasm -Dh6309 -o $@ $<
 
-MANDEL3.BIN: coco3-mandel.asm gime.asm $(SPT)
-	lwasm -o $@ $<
+MANDEL3.BIN: coco-mandel.asm gime.asm $(SPT)
+	lwasm -Dcoco3 -o $@ $<
 
-MANDEL3H.BIN: coco3-mandel.asm gime.asm $(SPT)
-	lwasm -Dh6309 -o $@ $<
+MANDEL3H.BIN: coco-mandel.asm gime.asm $(SPT)
+	lwasm -Dcoco3 -Dh6309 -o $@ $<
 
 MANDELD.BIN: MANDEL.BIN
 	decb_ddos <$< >$@
