@@ -1,5 +1,6 @@
 TGTS=mandelbr.dsk mandelbr.vdk
 SPT=../6x09/mandelbrot.asm ../6x09/fixedpt.asm
+SPT24=$(SPT) ../6x09/mandelbrot24.asm ../6x09/fixedpt24.asm
 
 all: $(TGTS)
 
@@ -19,16 +20,16 @@ mandelbr.vdk: MANDELD.BIN MANDELDH.BIN
 	dragondos write $@ MANDELH.BIN MANDELDH.BIN
 	dragondos write $@ MANDEL.BAS dragon-mandel_tok.bas -basic
 
-MANDEL.BIN: coco12-mandel.asm $(SPT)
+MANDEL.BIN: coco12-mandel.asm m6847.asm $(SPT)
 	lwasm -o $@ $<
 
-MANDELH.BIN: coco12-mandel.asm $(SPT)
+MANDELH.BIN: coco12-mandel.asm m6847.asm $(SPT)
 	lwasm -Dh6309 -o $@ $<
 
-MANDEL3.BIN: coco3-mandel.asm $(SPT)
+MANDEL3.BIN: coco3-mandel.asm gime.asm $(SPT)
 	lwasm -o $@ $<
 
-MANDEL3H.BIN: coco3-mandel.asm $(SPT)
+MANDEL3H.BIN: coco3-mandel.asm gime.asm $(SPT)
 	lwasm -Dh6309 -o $@ $<
 
 MANDELD.BIN: MANDEL.BIN
@@ -37,10 +38,18 @@ MANDELD.BIN: MANDEL.BIN
 MANDELDH.BIN: MANDELH.BIN
 	decb_ddos <$< >$@
 
-.PHONY: all clean distclean
+.PHONY: all clean distclean test
 
 clean:
 	rm -f *~ *# *.BIN
 
 distclean: clean
 	rm -f $(TGTS)
+
+test: all
+	- xroar -machine dragon32 -load mandelbr.vdk -run MANDEL.BIN
+	- xroar -machine dragon32 -machine-cpu 6309 -load mandelbr.vdk -run MANDELH.BIN
+	- xroar -machine cocous -load mandelbr.dsk -run MANDEL.BIN
+	- xroar -machine cocous -machine-cpu 6309 -load mandelbr.dsk -run MANDELH.BIN
+	- xroar -machine coco3 -load mandelbr.dsk -run MANDEL3.BIN
+	- xroar -machine coco3 -machine-cpu 6309 -load mandelbr.dsk -run MANDEL3H.BIN

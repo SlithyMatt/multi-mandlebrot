@@ -144,58 +144,56 @@ fp_mul: ; d = d * x ; FP_XT overflow
 	rts
 	endif ; h6309
 	
-FP_DIVIDE macro 		; d=d/(ea) ; remander in FP_RE
 	ifdef h6309
+FP_DIVIDE macro 		; d=d/(ea) ; remander in FP_RE
 	tfr d,w
 	clra
 	clrb
-	divs \1
+	divq \1
 	tfr w,d
 	endm
 	else ; ! h6309 -> m6809
+FP_DIVIDE macro 		; d=d/(ea) ; remander in FP_RE
 	ldx \1
 	lbsr fp_div
 	endm
 	
 fp_div: ; d=d/x ; remainder in FP_XT
-	FP_ST FP_A
-	FP_ABS
+*	FP_ST FP_A 		; make num unsigned
+*	FP_ABS
 	FP_ST FP_AA
 	tfr x,d
-	FP_ST FP_B
-	FP_ABS
+*	FP_ST FP_B		; make den unsigned
+*	FP_ABS
+*	tfr a,b			; shift right 8-bits
+* 	clra
 	FP_ST FP_BA
 
- 	ldb FP_BA+1
- 	clra
- 	FP_ST FP_BA
  	clrb
  	std FP_XT	
  	ldx #16     ;There are 16 bits in C
-@loop1:
-	FP_LD FP_AA
-	aslb    ;Shift hi bit of C into REM
-	rola  ;(vacating the lo bit, which will be used for the quotient)
-	FP_ST FP_AA
-	FP_LD FP_XT
+@loop:
+	FP_LD FP_XT	
+	asl FP_AA+1    ;Shift hi bit of C into REM
+	rol FP_AA  ;(vacating the lo bit, which will be used for the quotient)
 	rolb
 	rola
-	FP_ST FP_XT
-	subd FP_B ;Trial subtraction
-	blt @loop2  ;Did subtraction succeed?
+	std FP_XT
+	subd FP_BA ;Trial subtraction
+	blt @skip  ;Did subtraction succeed?
 	std FP_XT
 	inc FP_AA+1    ;and record a 1 in the quotient
-@loop2:
+@skip:
  	leax -1,x	
- 	bne @loop1
-	lda FP_A
-	eora FP_B
-	blt @retneg
+ 	bne @loop
+*	lda FP_A		; check sign of result
+*	eora FP_B
+*	blt @retneg
 	FP_LD FP_AA
 	rts
-@retneg:
-	FP_LD FP_AA
-	FP_NEG
-	rts
+*@retneg:
+*	FP_LD FP_AA		; switch sign if negative
+*	FP_NEG
+*	rts
 	endif ; m6809
 	endif ; !FIXEDPT_INC

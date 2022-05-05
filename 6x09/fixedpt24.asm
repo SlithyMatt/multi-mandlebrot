@@ -12,16 +12,17 @@ FP24_MULTIPLY	macro	; (u)=d*(y)
 	;; d: 8.8 fixed point value
 	;; (y): 16-bit integer
 	;; (u): 16.8 fixed point value
-	if h6309
+	ifdef h6309
 	muls ,y
 	stb ,u
 	stw 1,u
-	endm ; FP24_MULTIPLY
+	endm
 	else ; ! h6309 -> m6809
 	lbsr fp24_mult
-	endm ; FP24_MULTIPLY
+	endm
 	
-fp24_mult:	
+fp24_mult:
+	bra fp24_mult
 	std FP_T0
 	clr ,u
 	clr 1,u
@@ -57,10 +58,10 @@ FP24_DIVIDE	macro	; d=(u)/(y)
 	clra
 	divs ,y
 	tfr w,d
-	endm ; FP24_DIVIDE
+	endm
 	else ; ! h6309 -> m6809
 	lbsr fp24_div
-	endm ; FP24_DIVIDE
+	endm
 	
 fp24_div:
 	clr FP_T0
@@ -98,10 +99,10 @@ FP_SQUARE	macro	; d=d*d
 	muls FP_T0
 	tfr b,a
 	tfr e,b
-	endm ; FP24_SQUARE
+	endm
 	else ; ! h6309 -> m6809
 	lbsr fp_sq
-	endm ; FP24_SQUARE
+	endm
 
 fp_sq:
 	tsta
