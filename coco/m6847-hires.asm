@@ -1,3 +1,9 @@
+*MAND_WIDTH:	equ 256
+*MAND_HEIGHT:	equ 192
+*MAND_YMIN:	equ $FEB0
+*MAND_YMAX:	equ $02A0
+*MAND_MAX_IT:	equ 48
+	
 setup:
 	ifdef h6309
 	ldmd #1			; 6309 native mode

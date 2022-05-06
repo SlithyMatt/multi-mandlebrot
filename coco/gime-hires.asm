@@ -1,6 +1,8 @@
 MAND_WIDTH:	equ 320
 MAND_HEIGHT:	equ 200
-MAND_MAX_IT:	equ 32
+MAND_YMIN:	equ $FEE8
+MAND_YMAX:	equ $0230
+MAND_MAX_IT:	equ 48
 	
 setup:
 	sta $ffd9 		; 1.78 MHz
