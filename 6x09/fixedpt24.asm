@@ -23,28 +23,26 @@ FP24_MULTIPLY	macro	; (u)=d*(y)
 	endm
 	
 fp24_mult:
-	bra fp24_mult
-	std FP_T0
+	std FP_AA
 	clr ,u
-	clr 1,u
 	lda 1,y
 	mul
-	sta 2,u
+	std 1,u
 	lda 1,y
-	ldb ,s
-	mul
-	addd 1,u
-	std 1,u
-	lda ,y
-	ldb 1,s
-	mul
-	addd 1,u
-	std 1,u
-	lda ,y
-	ldb ,s
+	ldb FP_AA
 	mul
 	addd ,u
 	std ,u
+	lda ,y
+	ldb FP_AA+1
+	mul
+	addd ,u
+	std ,u
+	lda ,y
+	ldb FP_AA
+	mul
+	addb ,u
+	stb ,u
 	rts
 	endif ; m6809
 
@@ -66,26 +64,26 @@ FP24_DIVIDE	macro	; d=(u)/(y)
 	endm
 	
 fp24_div:
-	clr FP_T0
-	ldd ,u
-	std FP_T0+1
-	lda 2,u
-	sta FP_T1+1
+	clr FP_XT
+	lda ,u
+	sta FP_XT+1
+	ldd 1,u
+	sta FP_RE
 	ldx #16
 loop@:	
-	asl FP_T1+1
-	rol FP_T1
-	rol FP_T0+1
-	rol FP_T0
-	ldd FP_T0
+	asl FP_RE+1
+	rol FP_RE
+	rol FP_XT+1
+	rol FP_XT
+	ldd FP_XT
 	subd ,y
 	blt skip@
-	std FP_T0
-	inc FP_T1+1
+	std FP_XT
+	inc FP_RE+1
 skip@:
 	leax -1,x
 	bne loop@
-	ldd FP_T1
+	ldd FP_RE
 	rts
 	endif ; m6809
 
@@ -96,41 +94,41 @@ skip@:
 	;; a*b=b*a. For paired product: $FF*$FF=$FE01, $7F*$FF=$7E81,
 	;; *2=$FD02, $FD02+$00FE=$FE00, so no carry from 16-bit sum.
 	ifdef h6309
-FP_SQUARE	macro	; d=d*d
+FP_SQUARE	macro
 	std FP_RE
 	muld FP_RE
 	tfr b,a
 	tfr e,b
 	endm
 	else ; ! h6309 -> m6809
-FP_SQUARE	macro	; d=d*d
+FP_SQUARE	macro
 	lbsr fp_sq
 	endm
 
 fp_sq:
 	tsta
-	bpl skip@
+	bge skip@
 	coma
 	comb
 	addd #1
 skip@:	
-	std FP_T0
+	std FP_AA
+	clr FP_RE
 	tfr b,a
 	mul
-	clr FP_T1
-	sta FP_T1+1
-	ldd FP_T0
+	sta FP_RE+1
+	ldd FP_AA
 	mul
 	aslb
 	rola
-	addd FP_T1
-	std FP_T1
-	lda FP_T0
+	addd FP_RE
+	std FP_RE
+	lda FP_AA
 	tfr a,b
 	mul
-	addb FP_T1
+	addb FP_RE
 	tfr b,a
-	lda FP_T1+1
+	ldb FP_RE+1
 	rts
 	endif ; m6809
 	
