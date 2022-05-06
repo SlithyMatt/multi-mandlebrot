@@ -43,22 +43,22 @@ loop@:
 plot:
 	ldx #$8000
 	clrb
-	lda 3,s
+	lda 5,s
 	lsra
 	rorb
 	lsra
 	rorb
 	lsra
 	rorb
-	addb 2,s
+	addb 3,s
 	leax d,x
-	lda 4,s
+	lda 6,s
 	lsla
 	lsla
 	lsla
 	lsla
 	sta FP_T7
-	lda 4,s
+	lda 6,s
 	anda #$0f
 	adda FP_T7 
 	sta ,x

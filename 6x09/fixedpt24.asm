@@ -6,18 +6,19 @@ FIXEDPT24_INC equ 1
 
 	include "fixedpt.asm"
 	
-FP24_MULTIPLY	macro	; (u)=d*(y)
 	;; multiply unsigned 8.8 fixed point value by 16-bit integer
 	;; (unsigned) to give unsigned 16.8 fixed point result.
 	;; d: 8.8 fixed point value
 	;; (y): 16-bit integer
 	;; (u): 16.8 fixed point value
 	ifdef h6309
-	muls ,y
+FP24_MULTIPLY	macro	; (u)=d*(y)
+	muld ,y
 	stb ,u
 	stw 1,u
 	endm
 	else ; ! h6309 -> m6809
+FP24_MULTIPLY	macro	; (u)=d*(y)
 	lbsr fp24_mult
 	endm
 	
@@ -47,19 +48,20 @@ fp24_mult:
 	rts
 	endif ; m6809
 
-FP24_DIVIDE	macro	; d=(u)/(y)
 	;; divide unsigned 16.8 fixed point value by 16-bit integer
 	;; (unsigned) to give 8.8 fixed point result.
 	;; (u): 16.8 fixed point value
 	;; (y): 16-bit integer
 	;; d: 8.8 fixed point dividend
 	ifdef h6309
+FP24_DIVIDE	macro	; d=(u)/(y)
 	ldq -1,u
 	clra
-	divs ,y
+	divq ,y
 	tfr w,d
 	endm
 	else ; ! h6309 -> m6809
+FP24_DIVIDE	macro	; d=(u)/(y)
 	lbsr fp24_div
 	endm
 	
@@ -87,7 +89,6 @@ skip@:
 	rts
 	endif ; m6809
 
-FP_SQUARE	macro	; d=d*d
 	;; squares signed 8.8 fixed point numbers. Faster than
 	;; multiplying in many cases because: 1) only need to perform
 	;; absolute value of one number, 2) result will always be
@@ -95,12 +96,14 @@ FP_SQUARE	macro	; d=d*d
 	;; a*b=b*a. For paired product: $FF*$FF=$FE01, $7F*$FF=$7E81,
 	;; *2=$FD02, $FD02+$00FE=$FE00, so no carry from 16-bit sum.
 	ifdef h6309
-	std FP_T0
-	muls FP_T0
+FP_SQUARE	macro	; d=d*d
+	std FP_RE
+	muld FP_RE
 	tfr b,a
 	tfr e,b
 	endm
 	else ; ! h6309 -> m6809
+FP_SQUARE	macro	; d=d*d
 	lbsr fp_sq
 	endm
 

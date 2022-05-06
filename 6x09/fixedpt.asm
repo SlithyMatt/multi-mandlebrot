@@ -26,16 +26,16 @@ FP_LD_BYTE macro 		; d=a
 	endm
 	
 FP_LD macro			; d=(ea) ; fp
-	ldd \1
+	ldd \*
 	endm
 
 FP_LD_INT macro			; d=(ea) ; int
-	lda \1
+	lda \*
 	clrb
 	endm
 
 FP_ST macro			; (ea)=d
-	std \1
+	std \*
 	endm
 
 FP_FLOOR macro			; d=floor(d)
@@ -43,15 +43,15 @@ FP_FLOOR macro			; d=floor(d)
 	endm
 
 FP_SUBTRACT macro		; d=d-(ea)
-	subd \1
+	subd \*
 	endm
 
 FP_ADD macro			; d=d+(ea)
-	addd \1
+	addd \*
 	endm
 
 FP_COMPARE macro		; compare d (set flags)
-	cmpd \1
+	cmpd \*
 	endm
 
 FP_MUL2 macro			; d=2*d
@@ -77,7 +77,7 @@ out@:
 	endm
 
 FP_ABS1 macro			; d=|(ea)|
-	ldd \1
+	ldd \*
 	bpl out@
 	FP_NEG
 out@:
@@ -86,13 +86,13 @@ out@:
 
 	ifdef h6309
 FP_MULTIPLY macro		; d=d*(ea)
-	muld \1
-	stq FP_RE-1
-	ldd FP_RE
+	muld \*
+	tfr b,a
+	tfr e,b
 	endm
 	else ; ! h6309 -> m6809
 FP_MULTIPLY macro		; d=d*(ea)
-	ldx \1
+	ldx \*
 	lbsr fp_mul
 	endm
 
@@ -149,12 +149,12 @@ FP_DIVIDE macro 		; d=d/(ea) ; remander in FP_RE
 	tfr d,w
 	clra
 	clrb
-	divq \1
+	divq \*
 	tfr w,d
 	endm
 	else ; ! h6309 -> m6809
 FP_DIVIDE macro 		; d=d/(ea) ; remander in FP_RE
-	ldx \1
+	ldx \*
 	lbsr fp_div
 	endm
 	

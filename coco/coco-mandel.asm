@@ -1,18 +1,18 @@
 	org $0e00
 	ifdef hires
-	include "../6x09/mandelbrot24.asm"
 	ifdef coco3
 	include "gime-hires.asm"
-	else
+	else 
 	include "m6847-hires.asm"
 	endif
+	include "../6x09/mandelbrot24.asm"
 	else
-	include "../6x09/mandelbrot.asm"
 	ifdef coco3
 	include "gime.asm"
 	else
 	include "m6847.asm"
 	endif
+	include "../6x09/mandelbrot.asm"
 	endif
 start:
 	pshs cc,dp
@@ -27,24 +27,27 @@ start:
 	lbsr setup
 	
 	;; main loop
-	leas -3,s
-	clra
-	sta 1,s
+	leas -5,s
+	clr ,s
+	clr 1,s
+	clr 2,s
+	clr 3,s
 loop@:
-	sta ,s
 	lbsr mand_get
 	lbsr plot
-	lda ,s
-	inca
-	cmpa #32
+	ldd ,s
+	addd #1
+	std ,s
+	cmpd #MAND_WIDTH
 	bne loop@
-	clra
-	ldb 1,s
-	incb
-	stb 1,s
-	cmpb #22
+	clr ,s
+	clr 1,s
+	ldd 2,s
+	addd #1
+	std 2,s
+	cmpd #MAND_HEIGHT
 	bne loop@
-	leas 3,s
+	leas 5,s
 
 	;; exit
 	lbsr restore

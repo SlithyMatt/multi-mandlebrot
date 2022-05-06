@@ -20,14 +20,14 @@ setup:
 	rts
 
 plot:
-	lda 3,s
+	lda 5,s
 	clrb
 	lsra
 	rorb
-	orb 2,s
+	orb 3,s
 	addd #$1200
 	tfr d,x
-	lda 4,s
+	lda 6,s
 	anda #$0f
 	ldy #colors
 	lda a,y

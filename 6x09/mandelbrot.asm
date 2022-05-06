@@ -36,14 +36,14 @@ mand_get:
 	; Input:
         ;  X,Y - bitmap coordinates
         ; Output: A - # iterations executed (0 to MAND_MAX_IT-1)
-	lda 2,s
+	lda 3,s
 	FP_LD_BYTE
 	FP_MULTIPLY #MAND_XMAX  ; C = A*B
 	FP_DIVIDE #MAND_WIDTH    ; C = A/B
 	FP_ADD #MAND_XMIN       ; C = A+B (scaled X)
 	FP_ST mand_x0    ; x0 = C
 
-	lda 3,s
+	lda 5,s
 	FP_LD_BYTE   ; A = Y coordinate
 	FP_MULTIPLY #MAND_YMAX  ; C = A*B
 	FP_DIVIDE   #MAND_HEIGHT  ; C = A/B
@@ -87,5 +87,5 @@ mand_get:
 	lda FP_T7
 	tfr y,d
 	decb
-	stb 4,s
+	stb 6,s
 	rts
