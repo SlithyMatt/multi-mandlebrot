@@ -1,5 +1,5 @@
 MAND_WIDTH:	equ 128
-MAND_HEIGHT:	equ 96
+MAND_HEIGHT:	equ 192
 MAND_YMIN:	equ $FEB0
 MAND_YMAX:	equ $02A0
 MAND_MAX_IT:	equ 48
@@ -11,10 +11,10 @@ setup:
 	;;  CG3
 	lda $ff22
 	anda #$07
-	ora #$e0
+	ora #$e8
 	sta $ff22
 	sta $ffc0
-	sta $ffc2
+	sta $ffc3
 	sta $ffc5
 	;; starting address $1200
 	sta $ffc7
@@ -60,7 +60,7 @@ skip@:
 	stb ,x
 	rts
 colors:
-	fcb $00,$55,$aa,$ff
+	fcb $aa,$ff,$55,$00
 
 restore:
 	ifdef h6309

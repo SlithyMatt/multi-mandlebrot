@@ -17,11 +17,7 @@
 start:
 	pshs cc,dp
 	orcc #$50		; no interrupts
-	ifdef coco3
-	lda #$12		; direct page allowing 1024 bytes for code
-	else
-	lda #$1e
-	endif
+	lda #$11
 	pshs a
 	puls dp
 	lbsr setup
