@@ -1,16 +1,17 @@
-*MAND_WIDTH:	equ 256
-*MAND_HEIGHT:	equ 192
-*MAND_YMIN:	equ $FEB0
-*MAND_YMAX:	equ $02A0
-*MAND_MAX_IT:	equ 48
+MAND_WIDTH:	equ 128
+MAND_HEIGHT:	equ 96
+MAND_YMIN:	equ $FEB0
+MAND_YMAX:	equ $02A0
+MAND_MAX_IT:	equ 48
 	
 setup:
 	ifdef h6309
 	ldmd #1			; 6309 native mode
 	endif
-	;;  SG12
+	;;  CG3
 	lda $ff22
-	anda #7
+	anda #$07
+	ora #$e0
 	sta $ff22
 	sta $ffc0
 	sta $ffc2
@@ -26,25 +27,40 @@ setup:
 	rts
 
 plot:
-	lda 3,s
-	clrb
+	ldd 4,s
+	exg a,b
 	lsra
 	rorb
-	orb 2,s
+	addd 2,s
+	lsra
+	rorb
+	lsra
+	rorb
 	addd #$1200
 	tfr d,x
-	lda 4,s
-	anda #$0f
-	ldy #colors
-	lda a,y
+	lda #$c0
+	ldb 3,s
+	andb #$03
+	beq skip@
+loop@:
+	lsra
+	lsra
+	decb
+	bne loop@
+skip@:
+	tfr a,b
+	coma
+	anda ,x
 	sta ,x
-	sta $20,x
-	sta $40,x
-	sta $60,x
+	lda 6,s
+	anda #$03
+	ldy #colors
+	andb a,y
+	orb ,x
+	stb ,x
 	rts
 colors:
-	fcb $ff,$ef,$df,$cf,$bf,$af,$9f,$8f
-	fcb $20,$ff,$ef,$df,$cf,$bf,$cf,$80
+	fcb $00,$55,$aa,$ff
 
 restore:
 	ifdef h6309

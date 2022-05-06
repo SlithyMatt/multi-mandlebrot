@@ -1,41 +1,68 @@
 TGTS=mandelbr.dsk mandelbr.vdk
 SPT=../6x09/mandelbrot.asm ../6x09/fixedpt.asm
 SPT24=$(SPT) ../6x09/mandelbrot24.asm ../6x09/fixedpt24.asm
+COCO=MAND1L8.BIN MAND1L3.BIN MAND1H8.BIN MAND1H3.BIN coco12-mandel.bas 
+COCO3=MAND3L8.BIN MAND3L3.BIN MAND3H8.BIN MAND3H3.BIN coco3-mandel.bas 
+DRAGON=MANDDL8.BIN MANDDL3.BIN MANDDH8.BIN MANDDH3.BIN dragon-mandel_tok.bas 
 
 all: $(TGTS)
 
-mandelbr.dsk: coco12-mandel.bas coco3-mandel.bas MANDEL.BIN MANDELH.BIN MANDEL3.BIN MANDEL3H.BIN
+mandelbr.dsk: $(COCO) $(COCO3)
 	decb dskini $@
-	decb copy -tb0 coco12-mandel.bas $@,MANDEL.BAS
-	decb copy -tb0 coco3-mandel.bas $@,MANDELB3.BAS
-	decb copy -b2 MANDEL.BIN $@,MANDEL.BIN
-	decb copy -b2 MANDELH.BIN $@,MANDELH.BIN
-	decb copy -b2 MANDEL3.BIN $@,MANDEL3.BIN
-	decb copy -b2 MANDEL3H.BIN $@,MANDEL3H.BIN
+	decb copy -tb0 coco12-mandel.bas $@,MANDEL1.BAS
+	decb copy -tb0 coco3-mandel.bas $@,MANDEL3.BAS
+	decb copy -b2 MAND1L8.BIN $@,MAND1L8.BIN
+	decb copy -b2 MAND1L3.BIN $@,MAND1L3.BIN
+	decb copy -b2 MAND1H8.BIN $@,MAND1H8.BIN
+	decb copy -b2 MAND1H3.BIN $@,MAND1H3.BIN
+	decb copy -b2 MAND3L8.BIN $@,MAND3L8.BIN
+	decb copy -b2 MAND3L3.BIN $@,MAND3L3.BIN
+	decb copy -b2 MAND3H8.BIN $@,MAND3H8.BIN
+	decb copy -b2 MAND3H3.BIN $@,MAND3H3.BIN
 
-mandelbr.vdk: MANDELD.BIN MANDELDH.BIN dragon-mandel_tok.bas
+mandelbr.vdk: $(DRAGON)
 	rm -f $@
 	dragondos create $@
-	dragondos write $@ MANDEL.BIN MANDELD.BIN
-	dragondos write $@ MANDELH.BIN MANDELDH.BIN
-	dragondos write $@ MANDEL.BAS dragon-mandel_tok.bas -basic
+	dragondos write $@ MANDDL8.BIN MANDDL8.BIN
+	dragondos write $@ MANDDL3.BIN MANDDL3.BIN
+	dragondos write $@ MANDDH8.BIN MANDDH8.BIN
+	dragondos write $@ MANDDH3.BIN MANDDH3.BIN
+	dragondos write $@ MANDELD.BAS dragon-mandel_tok.bas -basic
 
-MANDEL.BIN: coco-mandel.asm m6847.asm $(SPT)
+MAND1L8.BIN: coco-mandel.asm m6847.asm $(SPT)
 	lwasm -o $@ $<
 
-MANDELH.BIN: coco-mandel.asm m6847.asm $(SPT)
+MAND1L3.BIN: coco-mandel.asm m6847.asm $(SPT)
 	lwasm -Dh6309 -o $@ $<
 
-MANDEL3.BIN: coco-mandel.asm gime.asm $(SPT)
+MAND1H8.BIN: coco-mandel.asm m6847-hires.asm $(SPT24)
+	lwasm -Dhires -o $@ $<
+
+MAND1H3.BIN: coco-mandel.asm m6847-hires.asm $(SPT24)
+	lwasm -Dhires -Dh6309 -o $@ $<
+
+MAND3L8.BIN: coco-mandel.asm gime.asm $(SPT)
 	lwasm -Dcoco3 -o $@ $<
 
-MANDEL3H.BIN: coco-mandel.asm gime.asm $(SPT)
+MAND3L3.BIN: coco-mandel.asm gime.asm $(SPT)
 	lwasm -Dcoco3 -Dh6309 -o $@ $<
 
-MANDELD.BIN: MANDEL.BIN
+MAND3H8.BIN: coco-mandel.asm m6847-hires.asm $(SPT24)
+	lwasm -Dcoco3 -Dhires -o $@ $<
+
+MAND3H3.BIN: coco-mandel.asm m6847-hires.asm $(SPT24)
+	lwasm -Dcoco3 -Dhires -Dh6309 -o $@ $<
+
+MANDDL8.BIN: MAND1L8.BIN
 	decb_ddos <$< >$@
 
-MANDELDH.BIN: MANDELH.BIN
+MANDDL3.BIN: MAND1L3.BIN
+	decb_ddos <$< >$@
+
+MANDDH8.BIN: MAND1H8.BIN
+	decb_ddos <$< >$@
+
+MANDDH3.BIN: MAND1H3.BIN
 	decb_ddos <$< >$@
 
 .PHONY: all clean distclean test
@@ -47,9 +74,18 @@ distclean: clean
 	rm -f $(TGTS)
 
 test: all
-	- xroar -machine dragon32 -load mandelbr.vdk -run MANDEL.BIN
-	- xroar -machine dragon32 -machine-cpu 6309 -load mandelbr.vdk -run MANDELH.BIN
-	- xroar -machine cocous -load mandelbr.dsk -run MANDEL.BIN
-	- xroar -machine cocous -machine-cpu 6309 -load mandelbr.dsk -run MANDELH.BIN
-	- xroar -machine coco3 -load mandelbr.dsk -run MANDEL3.BIN
-	- xroar -machine coco3 -machine-cpu 6309 -load mandelbr.dsk -run MANDEL3H.BIN
+	- xroar -machine dragon32 dragon-mandel.bas
+	- xroar -machine dragon32 MANDDL8.BIN
+	- xroar -machine dragon32 -machine-cpu 6309 MANDDL3.BIN
+	- xroar -machine dragon32 MANDDH8.BIN
+	- xroar -machine dragon32 -machine-cpu 6309 MANDDH3.BIN
+	- xroar -machine cocous coco12-mandel.bas
+	- xroar -machine cocous MAND1L8.BIN
+	- xroar -machine cocous -machine-cpu 6309 MAND1L3.BIN
+	- xroar -machine cocous MAND1H8.BIN
+	- xroar -machine cocous -machine-cpu 6309 MAND1H3.BIN
+	- xroar -machine coco3 coco3-mandel.bas
+	- xroar -machine coco3 MAND3L8.BIN
+	- xroar -machine coco3 -machine-cpu 6309 MAND3L3.BIN
+	- xroar -machine coco3 MAND3H8.BIN
+	- xroar -machine coco3 -machine-cpu 6309 MAND3H3.BIN
