@@ -50,3 +50,7 @@ Basic09: 6809 (6309) 		0:42 (0:31)
 Assembly: 6809 (6309)
 - Color Computer 1/2 or Dragon: 6.3 (2.7)
 - Color Computer 3:   		3.3 (1.2)
+
+Assembly - Hires: 6809 (6309)
+- Color Computer 1/2 or Dragon (128x192):	4:06 (1:17)
+- Color Computer 3 (320x200):  			5:59 (1:54)
