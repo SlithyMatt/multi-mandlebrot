@@ -1,30 +1,33 @@
 	title mandelbrot driver
-	section code
-	xref cls,mandelbrot,plot
-	xdef start
-	; px: (a7)
-	; py: 2(a7)
-	; i:  4(a7)
+	section driver
+	xref setup,plot,restore
+	xref.s MAND_XMIN,MAND_XMAX,MAND_YMIN,MAND_YMAX
+	xref.s MAND_WIDTH,MAND_HEIGHT,MAND_MAX_IT
+	xref mandelbrot
+	;; px: (a7)
+	;; py: 2(a7)
+	;; i:  4(a7)
+	bra.s start
+	ds.b 4
+	dc.w $4afb,10,'mandelbrot'
 start:
-	subq.l #6,a7
-	bsr cls
+	bsr setup
+	lea -6(sp),sp
 	moveq #0,d0
-	move.w d0,2(a7) ; y
+	move.l d0,(sp)
 loop:
-	move.w d0,(a7) ; x
 	bsr mandelbrot
 	bsr plot
-	move.w (a7),d0
-	addq.w #1,d0
-	cmpi.w #32,d0
-	bne loop
+	addq.w #1,(sp)
+	cmpi.w #MAND_WIDTH,(sp)
+	bne.s loop
 	moveq #0,d0
-	move.w 2(a7),d1
-	addq.w #1,d1
-	move.w d1,2(a7)
-	cmpi.w #22,d1
-	bne loop
-	addq.l #6,a7
+	move.w d0,(sp)
+	addq.w #1,2(sp)
+	cmpi.w #MAND_HEIGHT,2(sp)
+	bne.s loop
+	lea 6(sp),sp
+	bsr restore
 	rts
 	end
 	

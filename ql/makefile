@@ -1,11 +1,17 @@
-TGTS=mandelbrot_bin null_bin
+TGTS=mandelbrot_bin mandelbrot_mon_bin mandelbrot_raw_bin mandelbrot_tv_bin 
 
 all: $(TGTS)
 
-mandelbrot_bin: ql-mandelbrot.o cls.o mandelbrot.o plot.o
+mandelbrot_bin: ql_mandelbrot.o mandelbrot.o gfx.o
 	vlink -brawbin1 -o $@ $^
 
-null_bin: ql-mandelbrot.o cls.o nullpt.o plot.o
+mandelbrot_mon_bin: ql_mandelbrot.o mandelbrot.o gfx_mon.o
+	vlink -brawbin1 -o $@ $^
+
+mandelbrot_raw_bin: ql_mandelbrot.o mandelbrot.o gfx_raw.o
+	vlink -brawbin1 -o $@ $^
+
+mandelbrot_tv_bin: ql_mandelbrot.o mandelbrot.o gfx_tv.o
 	vlink -brawbin1 -o $@ $^
 
 %.o: %.asm
