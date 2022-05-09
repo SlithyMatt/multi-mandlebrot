@@ -1,0 +1,64 @@
+	section gfx
+	xdef MAND_XMIN,MAND_XMAX,MAND_YMIN,MAND_YMAX
+	xdef MAND_WIDTH,MAND_HEIGHT,MAND_MAX_IT
+	xdef setup,plot,restore
+	;; mandelbrot constants
+MAND_XMIN:	equ $fd80	; -2.5
+MAND_XMAX:	equ $0380	; 3.5 (fixed point width)
+MAND_YMIN:	equ $feb0	; -1.3125
+MAND_YMAX:	equ $02a0	; 2.625 (fixed point height)
+MAND_WIDTH:	equ 256
+MAND_HEIGHT:	equ 256
+MAND_MAX_IT:	equ 48
+	;; QDOS constants
+	;; trap #1
+mt.susjb:	equ $08
+	;; trap #2
+io.open:	equ $01
+io.close:	equ $02
+	;; trap #3
+sd.fill:	equ $2e
+	;; vectors
+ut.scr:	equ $c8
+
+chanid:	ds.l 1
+
+setup:
+	;; open a 512x256 window at 0,0 and save the channel id in chanid
+	move.w ut.scr,a4
+	lea windef(pc),a1
+	jsr (a4)
+	lea chanid(PC),a4
+	move.l a0,(a4)
+	rts
+windef:	dc.b 0,0,0,7
+	dc.w 512,256,0,0
+
+plot:
+	;; plot a point
+	;; x-coord: 4(sp)
+	;; y-coord: 6(sp)
+	;; color:   8(sp)
+	moveq #sd.fill,d0
+	move.b #MAND_MAX_IT-1,d1
+	sub.b 8(sp),d1
+	moveq #-1,d3
+	move.l chanid(pc),a0
+	lea block(pc),a1
+	move.w 4(sp),d4
+	asl.w #1,d4
+	move.w d4,4(a1)
+	move.w 6(sp),6(a1)
+	trap #3
+	tst.l d0
+	rts
+block:	dc.w 2,1,1,1
+
+restore:
+	moveq #io.close,d0
+	move.l chanid(pc),a0
+	trap #2
+	tst.l d0
+	rts
+	end
+	
