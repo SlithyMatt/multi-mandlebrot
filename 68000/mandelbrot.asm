@@ -4,8 +4,8 @@
 mandelbrot:
 	;; Input:
 	;;  (sp)  - return address
-	;;  4(sp) - PX
-	;;  6(sp) - PY
+	;;  4(sp) - PX (preserved)
+	;;  6(sp) - PY (preserved)
 
 	;; Output:
 	;;  8(sp) - # iterations executed (0 to MAND_MAX_IT-1)

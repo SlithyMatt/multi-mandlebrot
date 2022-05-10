@@ -9,7 +9,7 @@ MAND_YMIN:	equ $ff00	; -1.0
 MAND_YMAX:	equ $0200	; 2.0 (fixed point height)
 MAND_WIDTH:	equ 32
 MAND_HEIGHT:	equ 22
-MAND_MAX_IT:	equ 255
+MAND_MAX_IT:	equ 14
 	;; QDOS constants
 	;; trap #1
 mt.susjb:	equ $08

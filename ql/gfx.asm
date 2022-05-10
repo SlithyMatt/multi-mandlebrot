@@ -8,7 +8,7 @@
 	.equ MAND_YMAX,0x0200	; 2.0 (fixed point height)
 	.equ MAND_WIDTH,32
 	.equ MAND_HEIGHT,22
-	.equ MAND_MAX_IT,255
+	.equ MAND_MAX_IT,14
 	;; QDOS constants
 	;; trap #1
 	.equ mt.susjb,0x08
@@ -20,7 +20,6 @@
 	;; vectors
 	.equ ut.scr,0xc8
 
-chanid:	.long 0
 
 setup:
 	;; open a 512x256 window at 0,0 and save the channel id in chanid
@@ -30,7 +29,9 @@ setup:
 	lea chanid(PC),a4
 	move.l a0,(a4)
 	rts
-windef:	.byte 0,0,0,7
+	.align 2
+windef:
+	.byte 0,0,0,7
 	.word 512,256,0,0
 
 plot:
@@ -63,7 +64,9 @@ plot:
 	trap #3
 	tst.l d0
 	rts
-block:	.word 16,11,16,16
+	.align 2
+block:
+	.word 16,11,16,16
 
 restore:
 	moveq #io.close,d0
@@ -71,4 +74,7 @@ restore:
 	trap #2
 	tst.l d0
 	rts
+	.align 4
+chanid:
+	.long 0
 	

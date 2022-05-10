@@ -20,8 +20,6 @@
 	;; vectors
 	.equ ut.scr,0xc8
 
-chanid:	.long 0
-
 setup:
 	;; open a 512x256 window at 0,0 and save the channel id in chanid
 	move.w ut.scr,a4
@@ -30,7 +28,9 @@ setup:
 	lea chanid(PC),a4
 	move.l a0,(a4)
 	rts
-windef:	.byte 0,0,0,7
+	.balign 2
+windef:
+	.byte 0,0,0,7
 	.word 512,256,0,0
 
 plot:
@@ -51,7 +51,9 @@ plot:
 	trap #3
 	tst.l d0
 	rts
-block:	.word 2,1,1,1
+	.balign 2
+block:
+	.word 2,1,1,1
 
 restore:
 	moveq #io.close,d0
@@ -59,4 +61,8 @@ restore:
 	trap #2
 	tst.l d0
 	rts
+	.balign 4
+chanid:
+	.long 0
+
 	

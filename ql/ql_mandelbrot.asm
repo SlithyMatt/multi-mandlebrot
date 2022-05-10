@@ -6,7 +6,7 @@
 	;; py: 2(a7)
 	;; i:  4(a7)
 	bra.s start
-	.long 0
+	.byte 0,0,0,0
 	.word 0x4afb,10
 	.ascii "mandelbrot"
 start:
