@@ -10,9 +10,6 @@ MAND_HEIGHT     EQU 22
 MAND_MAX_IT     EQU 15
 	section code
 	xdef setup,plot,restore
-setup:
-	rts
-	
 plot:
 	move.w 4(a7),d2 ; px
 	move.w 6(a7),d1 ; py
@@ -33,6 +30,8 @@ loop:
 	addi.w #256,d1
 	subq.w #1,d0
 	bne loop
+setup:
+restore:
 	rts
 colors: dc.l $00000000,$00110011,$00550055,$00660066
 	dc.l $00aa00aa,$00bb00bb,$00ff00ff,$22cc22cc
@@ -42,8 +41,5 @@ colors: dc.l $00000000,$00110011,$00550055,$00660066
 	dc.l $00aa00aa,$00ee00ee,$00ff00ff,$88338833
 	dc.l $aa00aa00,$aa44aa44,$aa55aa55,$aa99aa99
 	dc.l $aaaaaaaa,$aaeeaaee,$aaffaaff,$22332233
-
-restore:
-	rts
 	end
 	

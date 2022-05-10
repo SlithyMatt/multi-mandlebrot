@@ -8,8 +8,6 @@
 	.equ MAND_HEIGHT,22
 	.equ MAND_MAX_IT,15
 	.global setup,plot,restore
-setup:
-	rts
 	
 plot:
 	move.w 4(a7),d2 ; px
@@ -31,6 +29,8 @@ loop:
 	addi.w #256,d1
 	subq.w #1,d0
 	bne loop
+setup:				; null
+restore:			; null
 	rts
 colors: .long 0x00000000,0x00110011,0x00550055,0x00660066
 	.long 0x00aa00aa,0x00bb00bb,0x00ff00ff,0x22cc22cc
@@ -40,7 +40,3 @@ colors: .long 0x00000000,0x00110011,0x00550055,0x00660066
 	.long 0x00aa00aa,0x00ee00ee,0x00ff00ff,0x88338833
 	.long 0xaa00aa00,0xaa44aa44,0xaa55aa55,0xaa99aa99
 	.long 0xaaaaaaaa,0xaaeeaaee,0xaaffaaff,0x22332233
-
-restore:
-	rts
-	

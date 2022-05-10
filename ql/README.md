@@ -22,12 +22,12 @@ Run with
 - lbytes mandelbrot_bin,a
 - call a
 
-- mandelbrot_bin is lores (32x22), system friendly using QDOS system calls
+- mandelbrot_bin is lores (32x22), system friendly using QDOS system calls: 4.7
 - mandelbrot_mon_bin is hires (512x256), 4-color, system friendly
-  using QDOS sys tem calls
-- mandelbrot_raw_bin is lores (32x22), drirectly writing to the screen
+  using QDOS system calls: 4:04
+- mandelbrot_raw_bin is lores (32x22), drirectly writing to the screen: 0.8
 - mandelbrot_tv_bin is hires (256x256), 8-color, system friendly using
-  QDOS system calls
+  QDOS system calls: 2:01
 
 Basic runs in approximately 1:30 and assembly in about 1 sec on stock QL.
 
