@@ -9,7 +9,34 @@ using namespace std;
 
 #define WIDTH 3840
 #define HEIGHT 2160
-#define MAX_ITER 2000
+#define MAX_ITER 200
+#define NUM_THREADS 16
+
+void row(int py, CImg<unsigned char>& img, array<array<unsigned char,3>,MAX_ITER>& palette) {
+   int px,i;
+   double xz,yz,x,y,xt;
+
+   for (px=0; px<WIDTH; px++) {
+      xz = (double)px*3.5/WIDTH-2.5;
+      yz = (double)py*2.0/HEIGHT-1.0;
+      x = 0.0;
+      y = 0.0;
+      for (i=0; i<MAX_ITER; i++) {
+         if (x*x+y*y > 4) {
+            break;
+         }
+         xt = x*x - y*y + xz;
+         y = 2*x*y + yz;
+         x = xt;
+      }
+      if (i >= MAX_ITER) {
+         i = 0;
+      }
+      img(px,py,0,0) = palette[i][0]; // R
+      img(px,py,0,1) = palette[i][1]; // G
+      img(px,py,0,2) = palette[i][2]; // B
+   }
+}
 
 int main() {
    auto start = chrono::system_clock::now();
@@ -35,8 +62,7 @@ int main() {
    };
 
    array<array<unsigned char,3>,MAX_ITER> palette;
-   int px,py,i;
-   double xz,yz,x,y,xt;
+   int py,i;
 
    for (i=0; i<MAX_ITER; i++) {
       if (i<16) {
@@ -55,26 +81,7 @@ int main() {
    }
 
    for (py=0; py<HEIGHT; py++) {
-      for (px=0; px<WIDTH; px++) {
-         xz = (double)px*3.5/WIDTH-2.5;
-         yz = (double)py*2.0/HEIGHT-1.0;
-         x = 0.0;
-         y = 0.0;
-         for (i=0; i<MAX_ITER; i++) {
-            if (x*x+y*y > 4) {
-               break;
-            }
-            xt = x*x - y*y + xz;
-            y = 2*x*y + yz;
-            x = xt;
-         }
-         if (i >= MAX_ITER) {
-            i = 0;
-         }
-         img(px,py,0,0) = palette[i][0]; // R
-         img(px,py,0,1) = palette[i][1]; // G
-         img(px,py,0,2) = palette[i][2]; // B
-      }
+      row(py,img,palette);
    }
 
    img.save_png("mandelbrot.png");
