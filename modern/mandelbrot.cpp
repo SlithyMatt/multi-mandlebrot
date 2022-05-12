@@ -9,7 +9,7 @@ using namespace std;
 
 #define WIDTH 3840
 #define HEIGHT 2160
-#define MAX_INT 2000
+#define MAX_ITER 2000
 
 int main() {
    auto start = chrono::system_clock::now();
@@ -34,7 +34,7 @@ int main() {
       {0xFF,0xFF,0xFF}
    };
 
-   array<array<unsigned char,3>,MAX_INT> palette;
+   array<array<unsigned char,3>,MAX_ITER> palette;
    int px,py,i;
    double xz,yz,x,y,xt;
 
@@ -60,7 +60,7 @@ int main() {
          yz = (double)py*2.0/HEIGHT-1.0;
          x = 0.0;
          y = 0.0;
-         for (i=0; i<MAX_INT; i++) {
+         for (i=0; i<MAX_ITER; i++) {
             if (x*x+y*y > 4) {
                break;
             }
@@ -68,7 +68,7 @@ int main() {
             y = 2*x*y + yz;
             x = xt;
          }
-         if (i >= MAX_INT) {
+         if (i >= MAX_ITER) {
             i = 0;
          }
          img(px,py,0,0) = palette[i][0]; // R
