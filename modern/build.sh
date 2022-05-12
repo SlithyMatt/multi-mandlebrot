@@ -1,3 +1,3 @@
 #!/bin/sh
 
-g++ -o man mandelbrot.cpp -lm -lX11 -lpthread -lpng
+g++ -o man.exe mandelbrot.cpp -lm -lX11 -lpthread -lpng

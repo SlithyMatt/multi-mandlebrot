@@ -38,7 +38,7 @@ int main() {
    int px,py,i;
    double xz,yz,x,y,xt;
 
-   for (i=0; i<MAX_INT; i++) {
+   for (i=0; i<MAX_ITER; i++) {
       if (i<16) {
          palette[i][0] = cga_palette[i][0];
          palette[i][1] = cga_palette[i][1];
