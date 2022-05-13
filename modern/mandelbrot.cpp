@@ -13,7 +13,7 @@ using namespace std;
 #define WIDTH 3840
 #define HEIGHT 2160
 #define MAX_ITER 2000
-#define NUM_THREADS 16
+#define NUM_THREADS 12
 
 #if NUM_THREADS > HEIGHT
 #error "Can't have more threads than pixel rows!"
