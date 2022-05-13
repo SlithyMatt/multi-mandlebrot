@@ -1,15 +1,33 @@
 	org $0e00
+	ifdef vga
+modeset set 1
+	include "cocovga.asm"
+	endif
 	ifdef hires
 	ifdef coco3
+modeset set 1
 	include "gime-hires.asm"
-	else 
+	endif
+	ifdef v9958
+modeset set 1
+	include "v9958-hires.asm"
+	endif
+	ifndef modeset
+modeset set 1
 	include "m6847-hires.asm"
 	endif
 	include "../6x09/mandelbrot24.asm"
 	else
 	ifdef coco3
+modeset set 1
 	include "gime.asm"
-	else
+	endif
+	ifdef v9958
+modeset set 1
+	include "v9958.asm"
+	endif
+	ifndef modeset
+modeset set 1
 	include "m6847.asm"
 	endif
 	include "../6x09/mandelbrot.asm"

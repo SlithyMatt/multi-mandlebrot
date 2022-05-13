@@ -6,20 +6,20 @@
 	ifndef FIXEDPT_INC
 FIXEDPT_INC equ 1
 
-FP_T0:	
-FP_A:	equ $f0			;  a
-FP_T1:	
-FP_B:	equ $f2			;  b
-FP_T2:	
-FP_AA:	equ $f4			; |a|
-FP_T3:	
-FP_BA:	equ $f6			; |b|
-FP_T4:	
-FP_XT:	equ $f8			; extra (overflow/remainder)
-FP_T5:	
-FP_RE:	equ $fa			; result
+FP_T0:	equ $f0
+FP_T1:	equ $f2
+FP_T2:	equ $f4
+FP_T3:	equ $f6
+FP_T4:	equ $f8
+FP_T5:	equ $fa
 FP_T6:	equ $fc
 FP_T7:	equ $fe
+FP_A:	equ FP_T0		;  a
+FP_B:	equ FP_T1		;  b
+FP_AA:	equ FP_T2		; |a|
+FP_BA:	equ FP_T3		; |b|
+FP_XT:	equ FP_T4		; extra (overflow/remainder)
+FP_RE:	equ FP_T5		; result
 
 FP_LD_BYTE macro 		; d=a
 	clrb
