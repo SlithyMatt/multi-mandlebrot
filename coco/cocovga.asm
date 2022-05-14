@@ -10,7 +10,10 @@ setup:
 	ifdef h6309
 	ldmd #1			; 6309 mode
 	endif
-	bsr cocovga
+*	lbsr cocovga 		; set enable extended mode
+	lda #$bf		; setup palette
+	sta 1+page0
+	lbsr cocovga
 	;; point to $1200
 	sta $ffc7		; set F0	$0200
 	sta $ffc8		; clear F1	$0400
@@ -19,10 +22,10 @@ setup:
 	sta $ffce		; clear F4	$2000
 	sta $ffd0		; clear F5	$4000
 	sta $ffd2		; clear F6	$8000
-	;; set video mode CG6
+	;; set video mode CG6 (VG6)
 	lda $ff22
 	anda #$07
-	ora #$e8
+	ora #$e0
 	sta $ff22
 	sta $ffc0		; clear V0
 	sta $ffc3		; set V1
@@ -42,7 +45,8 @@ plot:
 	tfr d,x
 	lda 6,s
 	anda #$0f
-	ldu #colors
+	eora #$0f
+	ldu #nib2byte
 	lda a,u
 	ldb 3,s
 	andb #$01
@@ -68,7 +72,8 @@ plot:
 	tfr d,x
 	lda 6,s
 	anda #$0f
-	ldu #colors
+	eora #$0f
+	ldu #nib2byte
 	lda a,u
 
 	clrb
@@ -82,14 +87,13 @@ loop@:
 	bne loop@
 	rts
 	endif
-colors:
+nib2byte:
 	fcb $00,$11,$22,$33,$44,$55,$66,$77
 	fcb $88,$99,$aa,$bb,$cc,$dd,$ee,$ff
 	
 restore:	
-	lda $1000
-	sta $1001
-	clr $1000
+	ldd #$ff00
+	std page0
 	bsr cocovga
 	
 	ifdef h6309
