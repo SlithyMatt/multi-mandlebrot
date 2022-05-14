@@ -10,10 +10,7 @@ setup:
 	ifdef h6309
 	ldmd #1			; 6309 mode
 	endif
-*	lbsr cocovga 		; set enable extended mode
-	lda #$bf		; setup palette
-	sta 1+page0
-	lbsr cocovga
+	lbsr cocovga 		; set enable extended mode
 	;; point to $1200
 	sta $ffc7		; set F0	$0200
 	sta $ffc8		; clear F1	$0400
@@ -25,7 +22,7 @@ setup:
 	;; set video mode CG6 (VG6)
 	lda $ff22
 	anda #$07
-	ora #$e0
+	ora #$e8
 	sta $ff22
 	sta $ffc0		; clear V0
 	sta $ffc3		; set V1
