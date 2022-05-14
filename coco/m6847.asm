@@ -1,3 +1,5 @@
+screen:	equ $1200
+	
 setup:
 	ifdef h6309
 	ldmd #1			; 6309 native mode
@@ -6,17 +8,8 @@ setup:
 	lda $ff22
 	anda #7
 	sta $ff22
-	sta $ffc0
-	sta $ffc2
-	sta $ffc5
-	;; starting address $1200
-	sta $ffc7
-	sta $ffc8
-	sta $ffca
-	sta $ffcd
-	sta $ffce
-	sta $ffd0
-	sta $ffd2
+	vdgmode 4
+	vdgadr screen
 	rts
 
 plot:
@@ -25,7 +18,7 @@ plot:
 	lsra
 	rorb
 	orb 3,s
-	addd #$1200
+	addd #screen
 	tfr d,x
 	lda 6,s
 	anda #$0f

@@ -6,27 +6,24 @@ MAND_YMIN:      equ $FEB0
 MAND_YMAX:      equ $02A0
 MAND_MAX_IT:    equ 48
 	endif
+screen:	equ $1200
+	
 setup:
+	ifdef fast
+	sta $ffd9
+	endif
 	ifdef h6309
 	ldmd #1			; 6309 mode
 	endif
 	lbsr cocovga 		; set enable extended mode
-	;; point to $1200
-	sta $ffc7		; set F0	$0200
-	sta $ffc8		; clear F1	$0400
-	sta $ffca		; clear F2	$0800
-	sta $ffcd		; set F3	$1000
-	sta $ffce		; clear F4	$2000
-	sta $ffd0		; clear F5	$4000
-	sta $ffd2		; clear F6	$8000
+	;; point to screen
+	vdgadr screen
 	;; set video mode CG6 (VG6)
 	lda $ff22
 	anda #$07
 	ora #$e8
 	sta $ff22
-	sta $ffc0		; clear V0
-	sta $ffc3		; set V1
-	sta $ffc5		; set V2
+	vdgmode 6
 	rts
 
 	ifdef hires
@@ -38,7 +35,7 @@ plot:
 	addb 3,s
 	lsra
 	rorb
-	addd #$1200
+	addd #screen
 	tfr d,x
 	lda 6,s
 	anda #$0f
@@ -65,7 +62,7 @@ plot:
 	lda 5,s
 	ldb 3,s
 	lslb
-	addd #$1200
+	addd #screen
 	tfr d,x
 	lda 6,s
 	anda #$0f
@@ -96,6 +93,9 @@ restore:
 	ifdef h6309
 	ldmd #0			; 6809 mode
 	endif
+	ifdef fast
+	sta $ffd8
+	endif
 	rts
 
 cocovga:
@@ -112,13 +112,7 @@ loop@:
 	lda $ff02		; clear vsync irq
 
 	;; point at register set at $0e00
-	sta $ffc7		; set F0	$0200
-	sta $ffc9		; set F1	$0400
-	sta $ffcb		; set F2	$0800
-	sta $ffcc		; clear F3	$1000
-	sta $ffce		; clear F4	$2000
-	sta $ffd0		; clear F5	$4000
-	sta $ffd2		; clear F6	$8000
+	vdgadr page0
 	;; combo lock
 	lda $ff22
 	anda #$07
@@ -137,9 +131,7 @@ loop@:
 	anda #$07
 *	ora #$00		; cocovga page 0
 	sta $ff22
-	sta $ffc0		; clear V0
-	sta $ffc2		; clear V1
-	sta $ffc4		; clear V2
+	vdgmode 0
 
 loop@:
 	lda $ff03

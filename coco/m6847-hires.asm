@@ -3,6 +3,7 @@ MAND_HEIGHT:	equ 192
 MAND_YMIN:	equ $FEB0
 MAND_YMAX:	equ $02A0
 MAND_MAX_IT:	equ 48
+screen:	equ $1200
 	
 setup:
 	ifdef h6309
@@ -13,17 +14,8 @@ setup:
 	anda #$07
 	ora #$e8
 	sta $ff22
-	sta $ffc0
-	sta $ffc3
-	sta $ffc5
-	;; starting address $1200
-	sta $ffc7
-	sta $ffc8
-	sta $ffca
-	sta $ffcd
-	sta $ffce
-	sta $ffd0
-	sta $ffd2
+	vdgmode 6
+	vdgadr screen
 	rts
 
 plot:
@@ -36,7 +28,7 @@ plot:
 	rorb
 	lsra
 	rorb
-	addd #$1200
+	addd #screen
 	tfr d,x
 	lda #$c0
 	ldb 3,s

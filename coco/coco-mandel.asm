@@ -1,4 +1,21 @@
 	org $0e00
+
+vdgadr	macro
+	sta $ffc6+(1&&(\1&$0200)) ; F0
+	sta $ffc8+(1&&(\1&$0400)) ; F1
+	sta $ffca+(1&&(\1&$0800)) ; F2
+	sta $ffcc+(1&&(\1&$1000)) ; F3
+	sta $ffce+(1&&(\1&$2000)) ; F4
+	sta $ffd0+(1&&(\1&$4000)) ; F5
+	sta $ffd2+(1&&(\1&$8000)) ; F6
+	endm
+
+vdgmode macro
+	sta $ffc0+(1&&(\1&1)) 	; V0
+	sta $ffc2+(1&&(\1&2)) 	; V1
+	sta $ffc4+(1&&(\1&4)) 	; V2
+	endm
+
 	ifdef vga
 modeset set 1
 	include "cocovga.asm"
