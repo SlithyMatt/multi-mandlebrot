@@ -10,10 +10,21 @@
 using namespace cimg_library;
 using namespace std;
 
+#ifndef WIDTH
 #define WIDTH 3840
+#endif
+
+#ifndef HEIGHT
 #define HEIGHT 2160
+#endif
+
+#ifndef MAX_ITER
 #define MAX_ITER 2000
+#endif
+
+#ifndef NUM_THREADS
 #define NUM_THREADS 12
+#endif
 
 #if NUM_THREADS > HEIGHT
 #error "Can't have more threads than pixel rows!"
