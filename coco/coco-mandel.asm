@@ -1,5 +1,5 @@
 	org $0e00
-
+mpi:	equ 1			; mpi present
 vdgadr	macro
 	sta $ffc6+(1&&(\1&$0200)) ; F0
 	sta $ffc8+(1&&(\1&$0400)) ; F1
