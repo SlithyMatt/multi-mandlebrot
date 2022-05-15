@@ -1,5 +1,18 @@
+;;; Clock
+;;; - c1mhz:	force 0.89 MHz clock
+;;; - c2mhz:	use 1.78 MHz clock
+;;; - cfast:	use GIME-X fast clock
+;;; CPU (default to Motorola m6809)
+;;; - h6309:	support for Hitachi h6309
+;;; Graphics (default to m6847)
+;;; - coco3:	coco3 gime support
+;;; - hires:	use hires for set (otherwise 32x22x14)
+;;; - v9958:	SuperSprite FM+/WordPak2+ support
+;;; - vga:	cocovga support
+;;; Extra
+;;; - mpi:	use mpi register range when appropriate (v9958)
+	
 	org $0e00
-mpi:	equ 1			; mpi present
 vdgadr	macro
 	sta $ffc6+(1&&(\1&$0200)) ; F0
 	sta $ffc8+(1&&(\1&$0400)) ; F1
@@ -20,14 +33,19 @@ vdgmode macro
 modeset set 1
 	include "cocovga.asm"
 	endif
+	ifdef v9958
+modeset set 1
+	include "v9958.asm"
+	endif
 	ifdef hires
 	ifdef coco3
 modeset set 1
-	include "gime-hires.asm"
+	ifndef c1mhz
+	ifndef cfast
+c2mhz	set 1
 	endif
-	ifdef v9958
-modeset set 1
-	include "v9958-hires.asm"
+	endif
+	include "gime-hires.asm"
 	endif
 	ifndef modeset
 modeset set 1
@@ -39,10 +57,6 @@ modeset set 1
 modeset set 1
 	include "gime.asm"
 	endif
-	ifdef v9958
-modeset set 1
-	include "v9958.asm"
-	endif
 	ifndef modeset
 modeset set 1
 	include "m6847.asm"
@@ -50,11 +64,21 @@ modeset set 1
 	include "../6x09/mandelbrot.asm"
 	endif
 start:
+	ifdef c2mhz
+	sta $ffd9		; 1.78 MHz
+	endif
+	ifdef cfast
+	sta $ffd7		; GIME-X fast mode
+	sta $ffd9
+	endif
 	pshs cc,dp
 	orcc #$50		; no interrupts
 	lda #$11
 	pshs a
 	puls dp
+	ifdef h6309
+	ldmd #1 		; h6309 native mode
+	endif
 	lbsr setup
 	
 	;; main loop
@@ -82,5 +106,15 @@ loop@:
 
 	;; exit
 	lbsr restore
+	ifdef h6309
+	ldmd #0			; m6809 mode
+	endif
+	ifdef c2mhz
+	sta $ffd8		; 0.89 MHz
+	endif
+	ifdef cfast
+	sta $ffd6		; 0.89 MHz
+	sta $ffd8
+	endif
 	puls cc,dp,pc
 	end start

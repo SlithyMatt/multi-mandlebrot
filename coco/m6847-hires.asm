@@ -6,9 +6,6 @@ MAND_MAX_IT:	equ 48
 screen:	equ $1200
 	
 setup:
-	ifdef h6309
-	ldmd #1			; 6309 native mode
-	endif
 	;;  CG3
 	lda $ff22
 	anda #$07
@@ -55,7 +52,4 @@ colors:
 	fcb $aa,$ff,$55,$00
 
 restore:
-	ifdef h6309
-	ldmd #0			; 6809 mode
-	endif
 	rts

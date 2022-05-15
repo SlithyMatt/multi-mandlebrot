@@ -1,4 +1,4 @@
-	ifdef MPI
+	ifdef mpi
 ssbase	equ $ff50
 mpireg	equ $ff7f
 	else

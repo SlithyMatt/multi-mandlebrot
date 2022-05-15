@@ -9,12 +9,6 @@ MAND_MAX_IT:    equ 48
 screen:	equ $1200
 	
 setup:
-	ifdef fast
-	sta $ffd9
-	endif
-	ifdef h6309
-	ldmd #1			; 6309 mode
-	endif
 	lbsr cocovga 		; set enable extended mode
 	;; point to screen
 	vdgadr screen
@@ -89,13 +83,6 @@ restore:
 	ldd #$ff00
 	std page0
 	bsr cocovga
-	
-	ifdef h6309
-	ldmd #0			; 6809 mode
-	endif
-	ifdef fast
-	sta $ffd8
-	endif
 	rts
 
 cocovga:

@@ -1,9 +1,6 @@
 screen:	equ $1200
 	
 setup:
-	ifdef h6309
-	ldmd #1			; 6309 native mode
-	endif
 	;;  SG12
 	lda $ff22
 	anda #7
@@ -34,7 +31,4 @@ colors:
 	fcb $20,$ff,$ef,$df,$cf,$bf,$cf,$80
 
 restore:
-	ifdef h6309
-	ldmd #0			; 6809 mode
-	endif
 	rts

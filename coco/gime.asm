@@ -1,8 +1,4 @@
 setup:
-	sta $ffd9 		; 1.78 MHz
-	ifdef h6309
-	ldmd #1			; 6309 mode
-	endif
 	;; setup memory map 32k from $8000-$ffff is $60000-$67fff
 	ldx #$ffa4
 	lda #$30
@@ -78,8 +74,4 @@ loop@:
 	leax 1,x
 	cmpa #$40
 	bne loop@
-	ifdef h6309
-	ldmd #0			; 6809 mode
-	endif
-	sta $ffd8		; 0.89 MHz
 	rts

@@ -6,8 +6,7 @@ SPT24=$(SPT) ../6x09/mandelbrot24.asm ../6x09/fixedpt24.asm
 COCO1=MAND1L8.BIN MAND1L3.BIN MAND1H8.BIN MAND1H3.BIN
 COCO3=MAND3L8.BIN MAND3L3.BIN MAND3H8.BIN MAND3H3.BIN
 VGA=MANDVL8.BIN MANDVL3.BIN MANDVH8.BIN MANDVH3.BIN
-#MSX=MANDML8.BIN MANDML3.BIN MANDMH8.BIN MANDMH3.BIN
-MSX=MANDML8.BIN MANDML3.BIN
+MSX=MANDML8.BIN MANDML3.BIN MANDMH8.BIN MANDMH3.BIN
 COCO=$(COCO1) $(COCO3) $(VGA) $(MSX)
 DRAGON=$(COCO1) $(VGA) $(MSX)
 
@@ -64,16 +63,16 @@ coco/MANDVH3.BIN: coco-mandel.asm cocovga.asm cocovga-page.asm $(SPT24)
 
 # SuperSprite FM+/WordPak 2+
 coco/MANDML8.BIN: coco-mandel.asm v9958.asm $(SPT)
-	lwasm -Dv9958 -o $@ $<
+	lwasm -Dv9958 -Dmpi -Dc2mhz -o $@ $<
 
 coco/MANDML3.BIN: coco-mandel.asm v9958.asm $(SPT)
-	lwasm -Dv9958 -D6309 -o $@ $<
+	lwasm -Dv9958 -Dmpi -Dc2mhz -D6309 -o $@ $<
 
-coco/MANDMH8.BIN: coco-mandel.asm v9958-hires.asm $(SPT24)
-	lwasm -Dv9958 -Dhires -o $@ $<
+coco/MANDMH8.BIN: coco-mandel.asm v9958.asm $(SPT24)
+	lwasm -Dv9958 -Dmpi -Dc2mhz -Dhires -o $@ $<
 
-coco/MANDMH3.BIN: coco-mandel.asm v9958-hires.asm $(SPT24)
-	lwasm -Dv9958 -Dhires -D6309 -o $@ $<
+coco/MANDMH3.BIN: coco-mandel.asm v9958.asm $(SPT24)
+	lwasm -Dv9958 -Dmpi -Dc2mhz -Dhires -D6309 -o $@ $<
 
 dragon/%: coco/%
 	decb_ddos <$< >$@
