@@ -1,0 +1,70 @@
+	.global mandelbrot
+	.global MAND_XMIN,MAND_XMAX,MAND_YMIN,MAND_YMAX
+	.global MAND_WIDTH,MAND_HEIGHT,MAND_MAX_IT
+mandelbrot:
+	;; Input:
+	;;  (sp)  - return address
+	;;  4(sp) - PX (preserved)
+	;;  6(sp) - PY (preserved)
+
+	;; Output:
+	;;  8(sp) - # iterations executed (0 to MAND_MAX_IT-1)
+
+	;; Data use:
+	;;  d1 - i
+	;;  d2 - X^2
+	;;  d3 - Y^2
+	;;  d4 - mand_X
+	;;  d5 - mand_Y
+	;;  d6 - mand_X0
+	;;  d7 - mand_Y0
+
+	move.w 4(sp),d0		; d0 = PX/256
+	move.w #MAND_XMAX,d6	; d6=Xmax
+	muls d0,d6		; d6=PX*Xmax
+	move.w #MAND_WIDTH,d0	; d0=width/256
+	divs d0,d6		; d6=(PX*Xmax)/Xwid
+	add.w #MAND_XMIN,d6	; d6=(PX*Xmax)/Xwid+Xmin=X0
+
+	move.w 6(sp),d0		; d0=PY/256
+	move.w #MAND_YMAX,d7	; d7=Ymax
+	muls d0,d7		; d7=PY*Ymax
+	move.w #MAND_HEIGHT,d0	; d0=height/256
+	divs d0,d7		; d7=(PY*Ymax)/Ywid
+	add.w #MAND_YMIN,d7	; d7=(PY*Ymax)/Ywid+Ymin=Y0
+
+	moveq #0,d4		; X=0
+	moveq #0,d5		; Y=0
+	moveq #0,d1		; I=0 (init to 0)
+loop:
+	;; X^2
+	move.w d4,d2		; d2=X
+	muls d2,d2		; d2=X^2*256
+	asr.l #8,d2		; d2=X^2
+	;; Y^2
+	move.w d5,d3		; d3=Y
+	muls d3,d3		; d3=Y^2*256
+	asr.l #8,d3		; d3=Y^2
+	;; X^2+Y^2<4?
+	move.w d2,d0
+	add.w d3,d0		; d0=X^2+Y^2
+	cmp.w #0x0400,d0 
+	bgt.s dec_i		; X^2+Y^2>4?
+	;; Xtemp
+	move d2,d0
+	sub.w d3,d0		; d1=X^2-Y^2
+ 	add.w d6,d0		; d1=X^2-Y^2+X0 (temp X)
+	;; mand_Y
+	muls d4,d5		; d5=X*Y*256
+	asr.l #7,d5		; d5=X*Y*2
+	add.w d7,d5		; d5=2*X*Y+Y0 (new Y)
+	;; mand_X
+	move.w d0,d4		; d4=temp X (new X)
+	add.b #1,d1
+	cmp.b #MAND_MAX_IT,d1
+	beq.s dec_i
+	bra loop
+dec_i:
+	subq.b #1,d1
+	move.b d1,8(sp)
+	rts
