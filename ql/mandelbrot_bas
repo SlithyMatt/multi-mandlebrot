@@ -1,0 +1,23 @@
+100 im=0
+110 WINDOW 512,256,0,0:PAPER 0:CLS
+120 t=DATE
+130 FOR py=0 TO 21
+140 FOR px=0 TO 31
+150 xz=px*3.5/32-2.5
+160 yz=py*2/22-1
+170 x=0:y=0
+180 FOR i=0 TO 14
+190 IF x*x+y*y>4 THEN GO TO 250
+200 xt=x*x-y*y+xz
+210 y=2*x*y+yz
+220 x=xt
+230 NEXT i
+240 i=i+1
+250 i=15-i
+260 j=INT(i/2+.5):i=INT(i/2)
+270 IF j=8 THEN j=0
+280 BLOCK 16,10,px*16,py*10,i,j
+290 NEXT px
+300 NEXT py
+310 PRINT #0,DATE-t
+320 STOP
