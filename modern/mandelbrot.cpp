@@ -99,10 +99,14 @@ int main() {
          palette[i][0] = i & 0x10 ? 255 : 0;
          palette[i][1] = i & 0x20 ? 255 : 0;
          palette[i][2] = i & 0x40 ? 255 : 0;
+         if ((i & 0x70) == 0) {
+            palette[i][0] = 255;
+            palette[i][1] = 128;            
+         }
       } else {
-         palette[i][0] = palette[i-1][0] > 8 ? palette[i-1][0] - 8 : 0;
-         palette[i][1] = palette[i-1][1] > 8 ? palette[i-1][1] - 8 : 0;
-         palette[i][2] = palette[i-1][2] > 8 ? palette[i-1][2] - 8 : 0;
+         palette[i][0] = palette[i-1][0] > 16 ? palette[i-1][0] - 16 : 0;
+         palette[i][1] = palette[i-1][1] > 16 ? palette[i-1][1] - 16 : 0;
+         palette[i][2] = palette[i-1][2] > 16 ? palette[i-1][2] - 16 : 0;
       }
    }
 
