@@ -7,13 +7,15 @@ MAND_YMIN       EQU $FF00    ; -1
 MAND_YMAX       EQU $0200    ; 2
 MAND_WIDTH      EQU 32
 MAND_HEIGHT     EQU 22
-MAND_MAX_IT     EQU 15
+MAND_MAX_IT     EQU 14
 	section code
 	xdef setup,plot,restore
 plot:
 	move.w 4(a7),d2 ; px
 	move.w 6(a7),d1 ; py
-	move.w 8(a7),d0 ; i
+	moveq #0,d0
+	move.b 8(a7),d0 ; i
+	andi.b #$0f,d0
 	asl.w #2,d0
 	lea colors(PC),a0
 	move.l 0(a0,d0.w),d6

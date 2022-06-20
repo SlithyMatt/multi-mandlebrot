@@ -12,7 +12,9 @@
 plot:
 	move.w 4(a7),d2 ; px
 	move.w 6(a7),d1 ; py
-	move.w 8(a7),d0 ; i
+	moveq #0,d0
+	move.b 8(a7),d0 ; i
+	andi.b #0x0f,d0
 	asl.w #2,d0
 	lea colors(PC),a0
 	move.l 0(a0,d0.w),d6
