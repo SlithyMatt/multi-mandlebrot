@@ -7,7 +7,7 @@
    jmp start
 
 MAND_WIDTH = 128
-MAND_HEIGHT = 96
+MAND_HEIGHT = 98
 MAND_MAX_IT = 22
 
 .include "../6502/mandelbrot24.asm"

@@ -29,9 +29,12 @@ start:
    jsr mand_get
    pha                  ; push I to stack
    stz VERA_ctrl
-   lda #$10
-   sta VERA_addr_bank   ; stride = 1, bank 0
-   sty VERA_addr_high
+   lda #$11
+   sta VERA_addr_bank   ; stride = 1, bank 1
+   tya
+   clc
+   adc #$B0
+   sta VERA_addr_high
    txa
    asl
    sta VERA_addr_low
