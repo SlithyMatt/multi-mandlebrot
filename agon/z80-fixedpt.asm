@@ -168,7 +168,7 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
    pop bc
    ret
 
-fp_multiply ; FP_C = FP_A * FP_B; FP_R overflow
+fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    push bc              ; preserve FP_A
    push de              ; preserve FP_B
    bit 7,b

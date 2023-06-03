@@ -1,13 +1,5 @@
    include "z80-fixedpt.asm"
 
-MAND_XMIN: equ $FD80 ; -2.5
-MAND_XMAX: equ $0380 ; 3.5
-MAND_YMIN: equ $FF00 ; -1
-MAND_YMAX: equ $0200 ; 2
-
-MAND_WIDTH: equ 32
-MAND_HEIGHT: equ 22
-MAND_MAX_IT: equ 15
 
 mand_i:        db 0
 
