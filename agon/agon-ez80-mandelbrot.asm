@@ -1,5 +1,4 @@
-.assume adl=0
-.org $1000
+.assume adl=1
 
 MAND_XMIN: equ $FD80 ; -2.5
 MAND_XMAX: equ $0380 ; 3.5
@@ -11,7 +10,15 @@ MAND_HEIGHT: equ 22
 MAND_MAX_IT: equ 15
 
 plot:
+   ld bc,0              ; zero out upper byte
+   ld de,0              ; "
+   ld hl,0              ; "
+   exx
    ld bc,0              ; X = 0, Y = 0
+   ld de,0              ; zero out upper byte
+   ld hl,0              ; "
+   ld ix,0              ; "
+   ld iy,0              ; "
 @loop:
    call mand_get
    ld e,a               ; e = num iterations
@@ -36,4 +43,4 @@ plot:
    jp nz,@loop      ; loop until Y = height
    ret
 
-.include "z80-mandelbrot.asm"
+.include "ez80-mandelbrot.asm"
