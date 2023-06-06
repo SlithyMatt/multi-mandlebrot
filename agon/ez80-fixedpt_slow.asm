@@ -103,55 +103,53 @@ fp_floor: ; FP_C = floor(FP_C)
    ENDMACRO
 
 fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
-   push.s de              ; preserve FP_B
+   push de              ; preserve FP_B
    bit 7,b
    jp nz,@abs_a         ; get |FP_A| if negative
    ld h,b
    ld l,c               ; FP_C = FP_A
    jp @check_sign_b
 @abs_a:
-   ld hl,$0
+   ld hl,0
    or a
    sbc.s hl,bc            ; FP_C = |FP_A|
 @check_sign_b:
    bit 7,d
    jp z,@shift_b
-   push.s hl              ; preserve FP_C
-   ld hl,$0
+   push hl              ; preserve FP_C
+   ld hl,0
    or a
    sbc.s hl,de
-   ex de,hl             ; FP_B = |FP_B|
-   pop.s hl               ; restore FP_C
+   ld d,h
+   ld e,l               ; FP_B = |FP_B|
+   pop hl               ; restore FP_C
 @shift_b:
    ld e,d
    ld d,0
-   push.s bc              ; preserve FP_A
-   push.s de              ; copy FP_B
-   exx                  ; to DE' register
-   pop.s de
-   ld hl,0              ; FP_R in HL' register
-   exx
+   ld ix,fp_remainder
+   ld (ix),d
+   ld (ix+1),d          ; FP_R = 0
+   push bc              ; preserve FP_A
    ld b,16
 @loop1:
-   add.s hl,hl            ; Shift hi bit of FP_C into REM
-   exx                  ; switch to alternative registers set
-   adc.s hl,hl            ; 16-bit left shift
-   ld a,l
+   sla l                ; Shift hi bit of FP_C into REM
+   rl h
+   rl (ix)
+   rl (ix+1)
+   ld a,(ix)
    sub e                ; trial subtraction
    ld c,a
-   ld a,h
+   ld a,(ix+1)
    sbc a,d
    jp c,@loop2          ; Did subtraction succeed?
-   ld l,c               ; if yes, save it
-   ld h,a
-   exx                  ; switch to primary registers set
+   ld (ix),c            ; if yes, save it
+   ld (ix+1),a
    inc l                ; and record a 1 in the quotient
-   exx                  ; switch to alternative registers set
 @loop2:
-   exx                  ; switch to primary registers set
-   djnz @loop1          ; decrement register B and loop while B>0
-   pop.s bc               ; restore FP_A
-   pop.s de               ; restore FP_B
+   dec b
+   jp nz,@loop1
+   pop bc               ; restore FP_A
+   pop de               ; restore FP_B
    bit 7,d
    jp nz,@check_cancel
    bit 7,b
@@ -161,30 +159,30 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
    bit 7,b
    ret.l nz
 @negative:
-   push.s bc
+   push bc
    ld b,h
    ld c,l
    ld hl,0
    or a
    sbc.s hl,bc
-   pop.s bc
+   pop bc
    ret.l
 
 fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
-   push.s bc              ; preserve FP_A
-   push.s de              ; preserve FP_B
+   push bc              ; preserve FP_A
+   push de              ; preserve FP_B
    bit 7,b
    jp z,@check_sign_b
    ld hl,0
    or a
-   sbc.s hl,bc
+   sbc hl,bc
    FP_TCA               ; FP_A = |FP_A|
 @check_sign_b:
    bit 7,d
    jp z,@init_c
    ld hl,0
    or a
-   sbc.s hl,de
+   sbc hl,de
    FP_TCB               ; FP_B = |FP_B|
 @init_c:
    ld hl,0              ; fp_scratch in register H'
@@ -196,7 +194,7 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    srl d
    rr e
    jp nc,@loop2
-   add.s hl,bc
+   add hl,bc
 @loop2:
    rr h
    rr l
@@ -217,8 +215,8 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    rr h
    rr l
    djnz @loop3       ; decrement and loop
-   pop.s de            ; restore FP_B
-   pop.s bc            ; restore FP_A
+   pop de            ; restore FP_B
+   pop bc            ; restore FP_A
    bit 7,d
    jp nz,@check_cancel
    bit 7,b
@@ -228,11 +226,11 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    bit 7,b
    ret.l nz
 @negative:
-   push.s bc           ; preserve FP_A
+   push bc           ; preserve FP_A
    ld b,h
    ld c,l
    ld hl,0
    or a
-   sbc.s hl,bc
-   pop.s bc            ; restore FP_A
+   sbc hl,bc
+   pop bc            ; restore FP_A
    ret.l

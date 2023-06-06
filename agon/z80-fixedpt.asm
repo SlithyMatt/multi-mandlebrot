@@ -94,14 +94,14 @@ fp_floor: ; FP_C = floor(FP_C)
       sbc hl,de
    ENDMACRO
 
-   MACRO FP_ADD: ; FP_C = FP_A + FP_B
+   MACRO FP_ADD ; FP_C = FP_A + FP_B
       ld h,b
       ld l,c
       add hl,de
    ENDMACRO
 
 fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
-   push de              ; preserve FP_B
+   push.l de              ; preserve FP_B
    bit 7,b
    jp nz,@abs_a         ; get |FP_A| if negative
    ld h,b
@@ -114,19 +114,19 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
 @check_sign_b:
    bit 7,d
    jp z,@shift_b
-   push hl              ; preserve FP_C
+   push.l hl              ; preserve FP_C
    ld hl,0
    or a
    sbc hl,de
    ex de,hl             ; FP_B = |FP_B|
-   pop hl               ; restore FP_C
+   pop.l hl               ; restore FP_C
 @shift_b:
    ld e,d
    ld d,0
-   push bc              ; preserve FP_A
-   push de              ; copy FP_B
+   push.l bc              ; preserve FP_A
+   push.l de              ; copy FP_B
    exx                  ; to DE' register
-   pop de
+   pop.l de
    ld hl,0              ; FP_R in HL' register
    exx
    ld b,16
@@ -148,8 +148,8 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
 @loop2:
    exx                  ; switch to primary registers set
    djnz @loop1          ; decrement register B and loop while B>0
-   pop bc               ; restore FP_A
-   pop de               ; restore FP_B
+   pop.l bc               ; restore FP_A
+   pop.l de               ; restore FP_B
    bit 7,d
    jp nz,@check_cancel
    bit 7,b
@@ -159,18 +159,18 @@ fp_divide: ; FP_C = FP_A / FP_B; FP_REM = FP_A % FP_B
    bit 7,b
    ret nz
 @negative:
-   push bc
+   push.l bc
    ld b,h
    ld c,l
    ld hl,0
    or a
    sbc hl,bc
-   pop bc
+   pop.l bc
    ret
 
 fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
-   push bc              ; preserve FP_A
-   push de              ; preserve FP_B
+   push.l bc              ; preserve FP_A
+   push.l de              ; preserve FP_B
    bit 7,b
    jp z,@check_sign_b
    ld hl,0
@@ -215,8 +215,8 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    rr h
    rr l
    djnz @loop3       ; decrement and loop
-   pop de            ; restore FP_B
-   pop bc            ; restore FP_A
+   pop.l de            ; restore FP_B
+   pop.l bc            ; restore FP_A
    bit 7,d
    jp nz,@check_cancel
    bit 7,b
@@ -226,11 +226,11 @@ fp_multiply: ; FP_C = FP_A * FP_B; FP_R overflow
    bit 7,b
    ret nz
 @negative:
-   push bc           ; preserve FP_A
+   push.l bc           ; preserve FP_A
    ld b,h
    ld c,l
    ld hl,0
    or a
    sbc hl,bc
-   pop bc            ; restore FP_A
+   pop.l bc            ; restore FP_A
    ret

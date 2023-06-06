@@ -20,7 +20,7 @@ plot:
    ld ix,0              ; "
    ld iy,0              ; "
 @loop:
-   call mand_get
+   call.l mand_get
    ld e,a               ; e = num iterations
    ld a,17              ; set color
    rst.l $10
@@ -41,6 +41,6 @@ plot:
    ld a,MAND_HEIGHT
    cp c
    jp nz,@loop      ; loop until Y = height
-   ret
+   ret.l
 
 .include "ez80-mandelbrot.asm"
