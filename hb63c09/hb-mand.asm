@@ -9,12 +9,14 @@
 
 ;; lets enable 6309 since the CPU is required for the architecture of the computer
 h6309   EQU 1
+SWATCH  EQU $A03D               ; dumb stop watch routine
         ORG $1000               ; Jump to this location with G 1000 in MON09 or ASSIST9
 CONFIG:
         ifdef h6309
 	LDMD #1 		; h6309 native mode
         endif
 
+        LDA     SWATCH          ;should display "start" and start the debugger watch
 ;; main loop
         LEAS    -5,S            ; Allocate 5 bytes on the stack
         CLR     ,S              ; Clear X (temp low byte)
@@ -22,7 +24,7 @@ CONFIG:
         CLR     2,S             ; Clear Y (temp low byte)
         CLR     3,S             ; Clear Y (temp high byte)
                                 ; Dispite what mand_get says in mandelbrot.asm itterations is in 6,S
-
+        
 loop:
         LBSR    mand_get        ; Compute Mandelbrot for current position
         LBSR    PLOT            ; Map result to a gradient character and send it to UART
@@ -47,6 +49,7 @@ loop:
         LEAS    5,S             ; Deallocate stack
         
 DONE:       
+        LDA     SWATCH          ; should print the milliseconds delay.
         ifdef h6309
 	LDMD #0 		; h6809 emulation mode
         endif
