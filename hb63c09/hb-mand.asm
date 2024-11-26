@@ -4,13 +4,15 @@
 ;; there is a supported UART -- You should check the addresses in your
 ;; source file for the UART to make shure they align with your architecture 
 
+;; Load this into MON09 or ASSIST09 with 'L' command by pasteing the .S19 
+;; into the terminal.
+
 ;; lets enable 6309 since the CPU is required for the architecture of the computer
 h6309   EQU 1
-
-        ORG $1000
-
+        ORG $1000               ; Jump to this location with G 1000 in MON09 or ASSIST9
+CONFIG:
         ifdef h6309
-	ldmd #1 		; h6309 native mode
+	LDMD #1 		; h6309 native mode
         endif
 
 ;; main loop
@@ -44,14 +46,15 @@ loop:
         BNE     loop            ; If not, continue
         LEAS    5,S             ; Deallocate stack
         
-        
+DONE:       
         ifdef h6309
-	ldmd #0 		; h6809 emulation mode
+	LDMD #0 		; h6809 emulation mode
         endif
 
         JMP [$FFFE]             ; Jump to reset vector
 
-;; includes
+;; includes uart and multi-mandelbrot for 24 bit fp math for optimal results.
+
         INCLUDE "68b50.asm"
         
          
