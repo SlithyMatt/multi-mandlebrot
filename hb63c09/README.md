@@ -7,4 +7,4 @@ it will be interesting to see how much faster the test completes without the ser
 
 I did not run the test without video output.
 
-this code takes advantage of the speed tweeks avalible to the 6309 and uses the same maths in the ../6x09 directory that the CoCO uses.
+this code takes advantage of the speed tweeks avalible to the 6309 and uses the same maths in the ../6x09 directory that the Coco uses.
