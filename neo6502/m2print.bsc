@@ -1,0 +1,23 @@
+1000 t0=time( )
+1010 cls
+1020 for py=0 to 21
+1030 yz=py*2/22-1
+1040 for px=0 to 31
+1050 xz=px*3.5/32-2.5
+1060 x=0:y=0:i=0
+1070 while i<=14&x*x+y*y<=4
+1080 xt=x*x-y*y+xz
+1090 y=2*x*y+yz
+1100 x=xt
+1110 i=i+1
+1120 wend
+1130 ink 7,i
+1140 print;
+1150 next
+1160 ink 7,0
+1170 print
+1180 next
+1190 ink 7,0
+1200 t= (time( ) -t0) /100
+1210 while inkey$( ) = "" :wend
+1220 print t
