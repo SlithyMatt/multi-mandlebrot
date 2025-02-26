@@ -24,8 +24,9 @@
 #error "Can't have more threads than pixel rows!"
 #endif
 
-void set_pixel(unsigned char *img, int x, int y, unsigned char *color);
 unsigned char *create_image(int w, int h);
+void help(FILE *);
+void set_pixel(unsigned char *img, int x, int y, unsigned char *color);
 void write_ppm(char *name, int w, int h, unsigned char *img);
 
 unsigned char **palette;
@@ -98,16 +99,19 @@ int main(int argc, char *argv[]) {
   struct timespec tspec;
   int py,i, opt;
   pthread_t *rowthreads;
-  char opts[]="h:i:t:w:";
+  char opts[]="h:i:o:t:w:?";
   struct option long_opts[] = {
     { "height", 1, NULL, 'h'},
     { "width", 1, NULL, 'w'},
     { "iterations", 1, NULL, 'i'},
     { "max_iter", 1, NULL, 'i'},
+    { "out", 1, NULL, 'o'},
     { "threads", 1, NULL, 't'},
     { "num_threads", 1, NULL, 't'},
+    { "help", 0, NULL, '?'},
     { NULL, 0, NULL, '\0'}
   };
+  char *outname="mandelbrot.ppm";
   
   while((opt=getopt_long(argc, argv, opts, long_opts, NULL))!=-1) {
     switch(opt) {
@@ -143,6 +147,11 @@ int main(int argc, char *argv[]) {
 	return -1;
       }
       break;
+    case 'o':
+      outname=optarg;
+      break;
+    default:
+      help(stdout);
     }
   }
   if (num_threads>height) {
@@ -182,7 +191,7 @@ int main(int argc, char *argv[]) {
   rowthread(NULL);
   for(i=0; i<num_threads-1; i++) pthread_join(rowthreads[i], NULL);
 
-  write_ppm("mandelbrot.ppm", width, height, img);
+  write_ppm(outname, width, height, img);
 
   clock_gettime(CLOCK_REALTIME, &tspec);
   end = tspec.tv_sec+1e-9*tspec.tv_nsec;
@@ -215,3 +224,16 @@ void write_ppm(char *name, int w, int h, unsigned char *img) {
   fwrite(img, 3, w*h, out);
   fclose(out);
 }
+
+void help(FILE *out) {
+  fprintf(out, "Usage: mandelbrot <options>\n");
+  fprintf(out, "\t-w\t--width\t\tImage width (%d)\n", width);
+  fprintf(out, "\t-h\t--height\tImage height (%d)\n", height);
+  fprintf(out, "\t-i\t--iterations\tMaximum number of iterations (%d)\n", max_iter);
+  fprintf(out, "\t-t\t--threads\tNumber of threads (%d)\n", num_threads);
+  fprintf(out, "\t-o\t--out\t\tOutput name (mandelbrot.ppm)\n");
+  if (out==stdout) exit(0);
+  exit(-1);
+}
+
+    
