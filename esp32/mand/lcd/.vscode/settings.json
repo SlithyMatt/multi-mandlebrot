@@ -1,0 +1,39 @@
+{
+  "C_Cpp.intelliSenseEngine": "default",
+  "files.associations": {
+    "touch_cst328.h": "c",
+    "esp_lcd_ili9341.h": "c",
+    "esp_lcd_panel_commands.h": "c",
+    "esp_lcd_st7789.h": "c",
+    "esp_lcd_touch_stmpe610.h": "c",
+    "esp_lcd_panel_io.h": "c",
+    "touch_cst328_reg.h": "c",
+    "esp_lcd_touch.h": "c",
+    "thread": "c",
+    "*.tcc": "c",
+    "i2c.h": "c",
+    "esp_check.h": "c",
+    "lvgl.h": "c",
+    "lv_obj.h": "c",
+    "lv_group.h": "c",
+    "lv_hal.h": "c",
+    "lv_obj_style.h": "c",
+    "lv_style.h": "c",
+    "clk_tree_defs.h": "c",
+    "numbers": "c",
+    "ratio": "c",
+    "vernon_st7789t.h": "c",
+    "ws_lcd.h": "c",
+    "sdmmc_cmd.h": "c"
+  },
+  "idf.adapterTargetName": "esp32c6",
+  "idf.openOcdConfigs": [
+    "board/esp32c6-builtin.cfg"
+  ],
+  "idf.portWin": "COM55",
+  "idf.flashType": "UART",
+  "idf.port": "/dev/ttyACM0",
+  "idf.customExtraVars": {
+    "IDF_TARGET": "esp32c6"
+  }
+}

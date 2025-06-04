@@ -1,0 +1,14 @@
+{
+  "C_Cpp.intelliSenseEngine": "default",
+  "idf.espIdfPath": "/home/matt/esp/esp-idf",
+  "idf.pythonInstallPath": "/home/matt/.espressif/python_env/idf6.0_py3.9_env/bin/python3.9",
+  "idf.openOcdConfigs": [
+    "board/esp32c6-builtin.cfg"
+  ],
+  "idf.port": "/dev/ttyACM0",
+  "idf.toolsPath": "/home/matt/.espressif",
+  "idf.customExtraVars": {
+    "IDF_TARGET": "esp32c6"
+  },
+  "idf.flashType": "UART"
+}

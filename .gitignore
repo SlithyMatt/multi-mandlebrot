@@ -51,6 +51,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+.finf
 **/.finf/**
 
 *.PRG

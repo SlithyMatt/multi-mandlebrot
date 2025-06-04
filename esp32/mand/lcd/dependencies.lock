@@ -1,0 +1,24 @@
+dependencies:
+  espressif/led_strip:
+    dependencies: []
+    source:
+      path: /home/matt/workspace/multi-mandlebrot/esp32/mand/lcd/components/espressif__led_strip
+      type: local
+    version: 2.5.5
+  idf:
+    source:
+      type: idf
+    version: 6.0.0
+  lvgl/lvgl:
+    dependencies: []
+    source:
+      path: /home/matt/workspace/multi-mandlebrot/esp32/mand/lcd/components/lvgl__lvgl
+      type: local
+    version: 8.3.11
+direct_dependencies:
+- espressif/led_strip
+- idf
+- lvgl/lvgl
+manifest_hash: e11e90cc7b5e1fbc8a4f4848d4df2300c2a11e3d613cf6c7f147541ae3f19c21
+target: esp32c6
+version: 2.0.0
