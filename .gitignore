@@ -63,3 +63,4 @@ dkms.conf
 *.ssd
 *.bin
 .~*
+.DS_Store
