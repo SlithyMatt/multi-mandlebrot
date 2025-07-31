@@ -3,6 +3,8 @@
  * Copyright 2025, Andrew C. Young <andrew@vaelen.org>
  * License: MIT
  *
+ * To compile: cc -o mandelbrot mandelbrot.c -lcurses
+ *
  * This program was written on a Macintosh Quadra 700 running A/UX 3.1.
  * A/UX was Apple's first version of UNIX, based on both SYSV and BSD.
  * A/UX 3.1 was released in 1994, and its default C compiler did not
@@ -80,7 +82,7 @@ void cleanup()
 void calculate()
 {
   int i, col, row, iteration;
-  double width, height, x0, y0, x, y, x_scale, y_scale, xtemp;
+  double width, height, x0, y0, x, y, xtemp;
 
   width = (double)cols;
   height = (double)lines;
@@ -115,7 +117,6 @@ void display()
 {
   int i, col, row;
   int value;
-  int color;
   char symbol;
 
   /* Clear the screen */
@@ -155,7 +156,7 @@ double time_in_seconds()
   return t / 60.0;
 }
 
-void main()
+int main()
 {
   double start, after_calc, after_display, calc_time, display_time;
 
@@ -173,5 +174,5 @@ void main()
 
   printf("\nCalculation Time: %0.3f secs, Display Time: %0.3f secs, Total Time: %0.3f secs\n", calc_time, display_time, calc_time + display_time);
 
-  exit(0);
+  return 0;
 }
