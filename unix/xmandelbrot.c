@@ -26,6 +26,16 @@ struct color colors_2bit[4];
 struct color colors_4bit[16];
 struct color colors_8bit[256];
 
+#define DEFAULT_X_SHIFT 2.5
+#define DEFAULT_Y_SHIFT 1.0
+#define DEFAULT_X_SCALE 3.5
+#define DEFAULT_Y_SCALE 2.1
+
+struct viewport {
+  double x_shift, y_shift;
+  double x_scale, y_scale;
+};
+
 void get_window_size(display, window, height, width)
      Display *display;
      Window window;
@@ -65,12 +75,13 @@ double time_in_seconds()
   return t / 60.0;
 }
 
-void calculate(display, window, gc, palette, palette_size)
+void calculate(display, window, gc, palette, palette_size, viewport)
   Display *display;
   Window window;
   GC gc;
   unsigned long int *palette;
   size_t palette_size;
+  struct viewport viewport;
 {
   unsigned int i, col, row, iteration;
   double width, height, x0, y0, x, y, xtemp;
@@ -89,10 +100,10 @@ void calculate(display, window, gc, palette, palette_size)
   for (row = 0; row < lines; row++)
   {
     //    printf("Row: %u\n", row);q
-    y0 = (row * 2.1 / height) - 1;
+    y0 = (row * viewport.y_scale / height) - viewport.y_shift;
     for (col = 0; col < cols; col++)
     {
-      x0 = (col * 3.5 / width) - 2.5;
+      x0 = (col * viewport.x_scale / width) - viewport.x_shift;
       x = 0.0;
       y = 0.0;
       iteration = 0;
@@ -113,7 +124,7 @@ void calculate(display, window, gc, palette, palette_size)
   }
 
   finish = time_in_seconds();
-  printf("Height: %u, Width: %u, Time: %0.3f Seconds\n", lines, cols, (finish-start));
+  printf("Height: %u, Width: %u, Time: %0.3f Seconds (Viewport: {x - %0.3f, y - %0.3f, x * %0.3f, y * %0.3f})\n", lines, cols, (finish-start), viewport.x_shift, viewport.y_shift, viewport.x_scale, viewport.y_scale);
 
 }
 
@@ -215,8 +226,6 @@ void initialize_colors()
     }
   }
 
-  printf("Initialized %u colors.\n", idx);
-
 }
 
 void create_palette(display, colormap, palette, colors, size)
@@ -258,10 +267,17 @@ int main(argc,argv)
   unsigned int width, height, lastWidth, lastHeight;
   struct color *colors = colors_8bit;
   Colormap colormap;
-  
-  unsigned long palette[256];
-
+  struct viewport viewport;
   int max_iterations = 256;
+  unsigned long palette[256];
+  int x_center, y_center;
+  double click_x, click_y;
+
+  viewport.x_shift = DEFAULT_X_SHIFT;
+  viewport.y_shift = DEFAULT_Y_SHIFT;
+  viewport.x_scale = DEFAULT_X_SCALE;
+  viewport.y_scale = DEFAULT_Y_SCALE;
+  
   if (argc > 1)
   {
     max_iterations = atoi(argv[1]);
@@ -271,6 +287,7 @@ int main(argc,argv)
       exit(1);
     }
   }
+
   initialize_colors();
 
   /* setup display/screen */
@@ -347,7 +364,7 @@ int main(argc,argv)
         get_window_size(display, window, &height, &width);
         if (width != lastWidth || height != lastHeight)
         {
-          calculate(display, window, gc, palette, max_iterations);
+          calculate(display, window, gc, palette, max_iterations, viewport);
         }
         lastWidth = width;
         lastHeight = height;
@@ -359,6 +376,29 @@ int main(argc,argv)
       break;
     case ButtonPress:
       /* Mouse button was pressed. */
+      /* Calculate the world coordinates of the clicked point */
+      click_x = (event.xbutton.x * viewport.x_scale / width) - viewport.x_shift;
+      click_y = (event.xbutton.y * viewport.y_scale / height) - viewport.y_shift;
+      
+      /* increase or decrease the scale of the viewport depending on the button pressed */
+      if (event.xbutton.button == 1)
+      {
+        viewport.x_scale *= 0.75;
+        viewport.y_scale *= 0.75;
+      }
+      else if (event.xbutton.button == 3)
+      {
+        viewport.x_scale *= 1.25;
+        viewport.y_scale *= 1.25;
+      }
+      
+      /* Adjust the viewport to center on the clicked point */
+      x_center = width / 2;
+      y_center = height / 2;
+      viewport.x_shift = (x_center * viewport.x_scale / width) - click_x;
+      viewport.y_shift = (y_center * viewport.y_scale / height) - click_y;
+      
+      calculate(display, window, gc, palette, max_iterations, viewport);
       break;
     case KeyPress:
       /* Key input. */
